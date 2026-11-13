@@ -5,6 +5,20 @@ import { executeWorkspaceTool, workspaceModelTools, type WorkspaceAction } from 
 
 const MAX_AGENT_ROUNDS = 10;
 const MAX_TOOL_CALLS = 10;
+const parallelAgentRoles = [
+  {
+    name: "Implementierer",
+    focus: "Finde den kleinsten passenden Implementierungsweg und die wahrscheinlich relevanten Dateien.",
+  },
+  {
+    name: "Fehlerpruefer",
+    focus: "Pruefe Randfaelle, moegliche Fehler und Sicherheitsrisiken der Aufgabe.",
+  },
+  {
+    name: "Qualitaetspruefer",
+    focus: "Empfiehl passende Tests und nenne moegliche Regressionen oder unnötige Arbeit.",
+  },
+];
 
 const planTool: ModelTool = {
   type: "function",
@@ -49,6 +63,7 @@ export async function runCodingAgent(
   workspaceRoot: string,
   onProgress: (progress: AgentProgress) => void = () => undefined,
   complete: ToolCompletion = requestModelToolCompletion,
+  reviewComplete: ToolCompletion = requestModelToolCompletion,
 ): Promise<AgentResult> {
   const actions: WorkspaceAction[] = [];
   const messages: ModelMessage[] = [
@@ -75,6 +90,7 @@ export async function runCodingAgent(
   let toolCallCount = 0;
   let projectInspected = false;
   let planReported = false;
+  let parallelReviewCompleted = false;
   for (let round = 0; round < MAX_AGENT_ROUNDS; round += 1) {
     onProgress({
       phase: round === 0 ? "inspect" : "plan",
@@ -145,6 +161,41 @@ export async function runCodingAgent(
               onProgress(result.action);
               if (result.action.tool === "list_files") {
                 projectInspected = true;
+                if (!parallelReviewCompleted) {
+                  parallelReviewCompleted = true;
+                  onProgress({ phase: "inspect", summary: "Drei Spezialagenten analysieren den Auftrag parallel" });
+                  const reviews = await Promise.allSettled(parallelAgentRoles.map(async ({ name, focus }) => {
+                    const reviewMessages: ModelMessage[] = [
+                      {
+                        role: "system",
+                        content: [
+                          `Du bist der schreibgeschuetzte Spezialagent ${name}.`,
+                          focus,
+                          "Analysiere nur den Nutzerauftrag und den uebergebenen Projektbaum.",
+                          "Fuehre keine Tools aus, aendere keine Dateien und fuehre keine Aktionen aus.",
+                          "Nenne hoechstens drei konkrete, knappe Hinweise fuer den koordinierenden Coding-Agenten.",
+                        ].join(" "),
+                      },
+                      { role: "user", content: `Auftrag: ${prompt}\n\nProjektbaum:\n${output.slice(0, 8_000)}` },
+                    ];
+                    const review = await reviewComplete(config, reviewMessages, []);
+                    return { name, content: review.content.trim().slice(0, 1_000) };
+                  }));
+                  const notes = reviews.flatMap((review) =>
+                    review.status === "fulfilled" && review.value.content
+                      ? [`- ${review.value.name}: ${review.value.content}`]
+                      : [],
+                  );
+                  if (notes.length > 0) {
+                    const systemMessage = messages[0];
+                    if (systemMessage?.role === "system") {
+                      systemMessage.content = `${systemMessage.content ?? ""}\n\nParallele Team-Analyse (Hinweise, keine ausgefuehrten Aktionen):\n${notes.join("\n")}`;
+                    }
+                  }
+                  onProgress({
+                    phase: "inspect",
+                    summary: `Team-Analyse abgeschlossen (${notes.length}/${parallelAgentRoles.length} Hinweise)`,
+                  });
               }
             }
             if (!result.ok) {

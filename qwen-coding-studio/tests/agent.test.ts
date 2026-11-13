@@ -30,6 +30,12 @@ describe("runCodingAgent", () => {
     const complete = vi.fn<
       (config: ModelConfig, messages: ModelMessage[], tools: ModelTool[]) => Promise<ModelReply>
     >();
+    const reviewComplete = vi.fn<
+      (config: ModelConfig, messages: ModelMessage[], tools: ModelTool[]) => Promise<ModelReply>
+    >().mockImplementation(async (_config, messages, tools) => ({
+      content: `Hinweis ${messages[0]?.content ?? ""}`,
+      toolCalls: tools.length ? [] : [],
+    }));
     complete
       .mockResolvedValueOnce({
         content: "",
@@ -79,12 +85,16 @@ describe("runCodingAgent", () => {
       root,
       undefined,
       complete,
+      reviewComplete,
     );
 
     expect(await readFile(path.join(root, "src", "new.ts"), "utf8")).toContain("fresh");
     expect(result.response).toContain("src/new.ts angelegt");
     expect(result.actions).toHaveLength(3);
     expect(complete).toHaveBeenCalledTimes(5);
+    expect(reviewComplete).toHaveBeenCalledTimes(3);
+    expect(reviewComplete.mock.calls.every(([, , tools]) => tools.length === 0)).toBe(true);
+    expect(complete.mock.calls.at(-1)?.[1][0]?.content).toContain("Parallele Team-Analyse");
   });
 
   it("uses a failed test result to make a fix and reruns the test", async () => {
