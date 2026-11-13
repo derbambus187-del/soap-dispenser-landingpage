@@ -1,0 +1,299 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "sdxl_base_1.0.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load SDXL Base"
+    }
+  },
+  "2": {
+    "inputs": {
+      "ckpt_name": "sdxl_refiner_1.0.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load SDXL Refiner"
+    }
+  },
+  "3": {
+    "inputs": {
+      "control_net_name": "control_v11p_sd15_canny.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Canny"
+    }
+  },
+  "4": {
+    "inputs": {
+      "control_net_name": "control_v11p_sd15_depth.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Depth"
+    }
+  },
+  "5": {
+    "inputs": {
+      "image": "dispenser_depth.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Depth Map (from Blender/SVG)"
+    }
+  },
+  "6": {
+    "inputs": {
+      "image": "dispenser_canny.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Canny Edges (from Blender/SVG)"
+    }
+  },
+  "7": {
+    "inputs": {
+      "text": "Professional product photography of 3-in-1 soap dispenser, front view, 85mm macro lens f/5.6, three visible chambers with liquid soap (pale green), foam (white), toothpaste (white), matte white plastic body, dark matte cap, IR sensor ring chrome, three LED indicators glowing green/cyan/amber, tactile mode button with \"M\", studio lighting: large softbox 45° key, white fill card, subtle rim, white seamless background, soft contact shadow, high key, commercial cosmetics photography, 8k resolution, sharp details, color accurate, sRGB",
+      "clip": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Positive Prompt (Front Hero)"
+    }
+  },
+  "8": {
+    "inputs": {
+      "text": "blurry, out of focus, low resolution, pixelated, noise, grain, watermark, text, logo, branding, labels, stickers, distorted geometry, wrong proportions, extra chambers, missing chambers, wrong colors, oversaturated, undersaturated, color cast, cluttered background, busy environment, messy, dirty, fingers blocking product, cartoon, illustration, 3d render look, artificial, fake, plastic toy look, cheap, low quality, amateur photography, harsh shadows, blown highlights, chromatic aberration, vignetting",
+      "clip": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Negative Prompt"
+    }
+  },
+  "9": {
+    "inputs": {
+      "conditioning": [
+        "7",
+        0
+      ],
+      "control_net": [
+        "3",
+        0
+      ],
+      "image": [
+        "6",
+        0
+      ],
+      "strength": 0.8,
+      "start_percent": 0.0,
+      "end_percent": 1.0
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply Canny ControlNet"
+    }
+  },
+  "10": {
+    "inputs": {
+      "conditioning": [
+        "9",
+        0
+      ],
+      "control_net": [
+        "4",
+        0
+      ],
+      "image": [
+        "5",
+        0
+      ],
+      "strength": 0.6,
+      "start_percent": 0.0,
+      "end_percent": 0.8
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply Depth ControlNet"
+    }
+  },
+  "11": {
+    "inputs": {
+      "conditioning": [
+        "8",
+        0
+      ],
+      "control_net": [
+        "3",
+        0
+      ],
+      "image": [
+        "6",
+        0
+      ],
+      "strength": 0.8,
+      "start_percent": 0.0,
+      "end_percent": 1.0
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply Canny to Negative"
+    }
+  },
+  "12": {
+    "inputs": {
+      "conditioning": [
+        "11",
+        0
+      ],
+      "control_net": [
+        "4",
+        0
+      ],
+      "image": [
+        "5",
+        0
+      ],
+      "strength": 0.6,
+      "start_percent": 0.0,
+      "end_percent": 0.8
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply Depth to Negative"
+    }
+  },
+  "13": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": 123456789,
+      "steps": 30,
+      "cfg": 7.0,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1.0,
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "10",
+        0
+      ],
+      "negative": [
+        "12",
+        0
+      ],
+      "latent_image": [
+        "14",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "Base Sampler (SDXL Base)"
+    }
+  },
+  "14": {
+    "inputs": {
+      "width": 1024,
+      "height": 1280,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent (4:5 Portrait)"
+    }
+  },
+  "15": {
+    "inputs": {
+      "samples": [
+        "13",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Decode Base Latent"
+    }
+  },
+  "16": {
+    "inputs": {
+      "noise_seed": 987654321,
+      "steps": 15,
+      "cfg": 7.0,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 0.3,
+      "model": [
+        "2",
+        0
+      ],
+      "positive": [
+        "10",
+        0
+      ],
+      "negative": [
+        "12",
+        0
+      ],
+      "latent_image": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "Refiner Sampler (SDXL Refiner)"
+    }
+  },
+  "17": {
+    "inputs": {
+      "images": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "Encode for Refiner"
+    }
+  },
+  "18": {
+    "inputs": {
+      "images": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Result"
+    }
+  },
+  "19": {
+    "inputs": {
+      "filename_prefix": "dispenser_hero_front",
+      "images": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Final Image"
+    }
+  }
+}

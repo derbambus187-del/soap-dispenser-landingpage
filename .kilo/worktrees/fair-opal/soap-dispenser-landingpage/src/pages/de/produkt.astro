@@ -1,0 +1,95 @@
+---
+import Layout from '@/components/layout/Layout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Gallery from '@/components/product/Gallery.astro';
+import ModeSelector from '@/components/product/ModeSelector.astro';
+import SpecsTable from '@/components/product/SpecsTable.astro';
+import ScopeOfDelivery from '@/components/product/ScopeOfDelivery.astro';
+import Refills from '@/components/product/Refills.astro';
+import productData from '@/content/de/product.json';
+
+const locale = 'de';
+const currentPath = '/de/produkt';
+const { title, gallery, modes, specs, scope, refills } = productData;
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "3-in-1 Seifenspender",
+    "description": "Ein Spender für Seife, Rasierschaum und Zahnpasta – hygienisch, platzsparend, smart.",
+    "brand": { "@type": "Brand", "name": "3-in-1" },
+    "sku": "3IN1-DISPENSER-001",
+    "offers": { "@type": "Offer", "price": "149.00", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "seller": { "@type": "Organization", "name": "3-in-1 Seifenspender" } },
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "1200" }
+  }
+];
+---
+
+<BaseLayout
+  title="Produkt – 3-in-1 Seifenspender"
+  description="Alle Details zum 3-in-1 Seifenspender: 3 Kammern, berührungslose Ausgabe, 6 Monate Akku, einfache Montage. Jetzt entdecken!"
+  locale={locale}
+  jsonLd={jsonLd}
+>
+  <Layout locale={locale} currentPath={currentPath}>
+    <!-- Hero -->
+    <section class="bg-slate-900 dark:bg-black text-white py-16 md:py-24">
+      <div class="container-page">
+        <div class="max-w-3xl">
+          <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            {title}
+          </h1>
+          <p class="text-xl text-slate-300 mb-8">
+            {locale === 'de'
+              ? 'Drei Kammern. Ein Sensor. Null Kompromisse. Erleben Sie die Zukunft der Badhygiene.'
+              : 'Three chambers. One sensor. Zero compromises. Experience the future of bathroom hygiene.'}
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="https://shop.seifenspender.example" class="inline-flex items-center gap-2 px-7 py-3.5 text-lg font-semibold bg-white text-slate-900 rounded-lg hover:bg-slate-100 transition-colors">
+              {locale === 'de' ? 'Jetzt kaufen' : 'Buy Now'}
+            </a>
+            <a href="#modes" class="inline-flex items-center gap-2 px-7 py-3.5 text-lg font-semibold border-2 border-white text-white rounded-lg hover:bg-white/10 transition-colors">
+              {locale === 'de' ? 'Modi entdecken' : 'Explore Modes'}
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery -->
+    <section id="gallery" class="py-16 md:py-24 bg-white dark:bg-slate-950">
+      <div class="container-page">
+        <Gallery locale={locale} images={gallery.images} />
+      </div>
+    </section>
+
+    <!-- Mode Selector -->
+    <section id="modes" class="py-16 md:py-24 bg-slate-50 dark:bg-slate-900/50">
+      <div class="container-page">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+          <h2 class="font-display text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+            {locale === 'de' ? 'Drei Modi. Eine Berührung.' : 'Three modes. One touch.'}
+          </h2>
+          <p class="text-lg text-slate-600 dark:text-slate-400">
+            {locale === 'de'
+              ? 'Wählen Sie per Tastendruck zwischen Seife, Rasierschaum und Zahnpasta. Jeder Modus ist individuell einstellbar.'
+              : 'Switch between soap, shaving foam, and toothpaste at the touch of a button. Each mode is individually adjustable.'}
+          </p>
+        </div>
+        <div class="max-w-3xl mx-auto">
+          <ModeSelector locale={locale} modes={modes} defaultMode="soap" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Specs -->
+    <SpecsTable locale={locale} specs={specs} />
+
+    <!-- Scope of Delivery -->
+    <ScopeOfDelivery locale={locale} items={scope} />
+
+    <!-- Refills -->
+    <Refills locale={locale} title={refills.title} items={refills.items} />
+  </Layout>
+</BaseLayout>

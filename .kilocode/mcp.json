@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kilo-pet": {
+      "command": "node",
+      "args": ["kilo-pet/server.mjs"],
+      "alwaysAllow": ["pet_start", "pet_update", "pet_done", "pet_interrupted"]
+    }
+  }
+}

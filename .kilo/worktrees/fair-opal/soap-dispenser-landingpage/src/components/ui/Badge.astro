@@ -1,0 +1,22 @@
+---
+import { cx } from 'class-variance-authority';
+
+interface Props {
+  variant?: 'default' | 'success' | 'warning' | 'info' | 'brand';
+  class?: string;
+}
+
+const { variant = 'brand', class: className = '' } = Astro.props;
+
+const variants = {
+  default: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
+  brand: 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300',
+  success: 'bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300',
+  warning: 'bg-accent-100 text-accent-700 dark:bg-accent-900/30 dark:text-accent-300',
+  info: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
+};
+---
+
+<span class={cx('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-200', variants[variant], className)}>
+  <slot />
+</span>

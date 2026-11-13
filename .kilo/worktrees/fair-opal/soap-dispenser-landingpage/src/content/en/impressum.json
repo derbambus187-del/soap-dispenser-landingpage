@@ -1,0 +1,49 @@
+{
+  "title": "Imprint",
+  "sections": [
+    {
+      "heading": "Information according to § 5 TMG",
+      "items": [
+        "3-in-1 Seifenspender GmbH",
+        "Musterstraße 123",
+        "10117 Berlin",
+        "Germany"
+      ]
+    },
+    {
+      "heading": "Contact",
+      "items": [
+        "E-mail: info@seifenspender.example",
+        "Phone: +49 123 4567890"
+      ]
+    },
+    {
+      "heading": "VAT ID",
+      "items": [
+        "DE123456789"
+      ]
+    },
+    {
+      "heading": "Person responsible for content (§ 18 Abs. 2 MDStV)",
+      "items": [
+        "Max Mustermann",
+        "Musterstraße 123",
+        "10117 Berlin"
+      ]
+    },
+    {
+      "heading": "Disclaimer",
+      "items": [
+        "The contents of this website are created with greatest care. We do not guarantee the correctness, completeness or timeliness of the contents.",
+        "As a service provider, we are responsible for our own content on these pages under general laws. However, pursuant to §§ 7 to 10 TMG, we are not obliged to monitor external content or to investigate circumstances that indicate illegal content.",
+        "Links to third-party websites are outside our control. We accept no responsibility for such external content."
+      ]
+    },
+    {
+      "heading": "EU Dispute Resolution",
+      "items": [
+        "The European Commission provides a platform for online dispute resolution: https://ec.europa.eu/consumers/odr"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+---
+import Layout from '@/components/layout/Layout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+
+const locale = 'de';
+const currentPath = '/de/datenschutz';
+---
+
+<BaseLayout
+  title="Datenschutz – 3-in-1 Seifenspender"
+  description="Datenschutzerklärung der 3-in-1 Seifenspender Website gemäß DSGVO."
+  locale={locale}
+>
+  <Layout locale={locale} currentPath={currentPath}>
+    <Section padding="xl" class="bg-white dark:bg-slate-950">
+      <div class="container-page max-w-3xl">
+        <h1 class="font-display text-4xl font-bold text-slate-900 dark:text-white mb-8">Datenschutzerklärung</h1>
+        <div class="prose prose-slate dark:prose-invert space-y-6">
+          <p><strong>1. Datenschutz auf einen Blick</strong></p>
+          <p>Ihre personenbezogenen Daten werden beim Besuch dieser Website erhoben. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
+          <p><strong>2. Verantwortliche Stelle</strong></p>
+          <p>3-in-1 Seifenspender GmbH<br>
+          Musterstraße 123, 10115 Berlin<br>
+          E-Mail: info@seifenspender.example</p>
+          <p><strong>3. Datenerfassung auf dieser Website</strong></p>
+          <p><strong>Cookies:</strong> Diese Website verwendet keine Tracking-Cookies. Für Analytics wird ein cookie-freies Tool (Plausible/Umami) eingesetzt, das nur mit Ihrer Einwilligung aktiviert wird. Technisch notwendige Cookies (z. B. Sprachwahl) werden ohne Einwilligung gesetzt (§ 25 Abs. 2 TTDSG).</p>
+          <p><strong>Server-Logfiles:</strong> Der Provider erhebt automatisch Daten (Browsertyp, IP-Adresse, Uhrzeit, etc.). Diese dienen der Sicherheit und Optimierung.</p>
+          <p><strong>Kontaktformular:</strong> Daten aus dem Formular (Name, E-Mail, Nachricht) werden nur zur Bearbeitung Ihrer Anfrage verarbeitet (Art. 6 Abs. 1 lit. b DSGVO).</p>
+          <p><strong>4. Ihre Rechte</strong></p>
+          <p>Sie haben Recht auf Auskunft, Berichtigung, Löschung, Einschränkung, Widerspruch und Datenübertragbarkeit. Beschwerde bei der Aufsichtsbehörde möglich.</p>
+          <p><strong>5. Speicherdauer</strong></p>
+          <p>Daten werden gelöscht, sobald der Zweck entfällt oder Sie Ihre Einwilligung widerrufen. Gesetzliche Aufbewahrungspflichten bleiben unberührt.</p>
+          <p><strong>6. Analytics (Plausible/Umami)</strong></p>
+          <p>Diese Website nutzt Plausible/Umami – ein DSGVO-konformes, cookie-freies Analytics-Tool. Es werden keine personenbezogenen Daten gespeichert. IP-Adressen werden gehasht. Die Datenverarbeitung erfolgt nur mit Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO).</p>
+          <p><strong>7. Externe Links</strong></p>
+          <p>Diese Website enthält Links zu externen Seiten (Shop, Social Media). Für deren Datenschutz sind die jeweiligen Betreiber verantwortlich.</p>
+        </div>
+      </div>
+    </Section>
+  </Layout>
+</BaseLayout>

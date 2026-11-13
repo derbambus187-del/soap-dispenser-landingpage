@@ -1,0 +1,192 @@
+---
+import Layout from '@/components/layout/Layout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Button from '@/components/ui/Button.astro';
+import Card from '@/components/ui/Card.astro';
+import contactData from '@/content/de/contact.json';
+
+const locale = 'de';
+const currentPath = '/de/kontakt';
+const { title, subtitle, contact, cta, b2b, form } = contactData;
+---
+
+<BaseLayout
+  title="Kontakt – 3-in-1 Seifenspender"
+  description="Kontaktieren Sie uns: E-Mail, Telefon, Adresse. Jetzt im Shop bestellen oder B2B-Anfrage für Hotels, Fitnessstudios & Handel stellen."
+  locale={locale}
+>
+  <Layout locale={locale} currentPath={currentPath}>
+    <!-- Hero -->
+    <section class="bg-slate-900 dark:bg-black text-white py-16 md:py-24">
+      <div class="container-page">
+        <div class="max-w-3xl">
+          <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            {title}
+          </h1>
+          <p class="text-xl text-slate-300">
+            {subtitle}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Info & Form -->
+    <Section padding="xl" class="bg-white dark:bg-slate-950">
+      <div class="container-page">
+        <div class="grid lg:grid-cols-3 gap-8 lg:gap-12">
+          <!-- Contact Info -->
+          <div class="lg:col-span-1">
+            <Card class="h-full" padding="lg">
+              <h2 class="font-display text-2xl font-bold text-slate-900 dark:text-white mb-6">
+                {locale === 'de' ? 'Kontaktdaten' : 'Contact Details'}
+              </h2>
+              <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                    <Icon name="mail" size={24} class="text-brand-600 dark:text-brand-400" aria-label="" />
+                  </div>
+                  <div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{locale === 'de' ? 'E-Mail' : 'Email'}</p>
+                    <a href={`mailto:${contact.email}`} class="font-medium text-slate-900 dark:text-white hover:text-brand-600 transition-colors">{contact.email}</a>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                    <Icon name="phone" size={24} class="text-brand-600 dark:text-brand-400" aria-label="" />
+                  </div>
+                  <div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{locale === 'de' ? 'Telefon' : 'Phone'}</p>
+                    <a href={`tel:${contact.phone}`} class="font-medium text-slate-900 dark:text-white hover:text-brand-600 transition-colors">{contact.phone}</a>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{contact.hours}</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                    <Icon name="map-pin" size={24} class="text-brand-600 dark:text-brand-400" aria-label="" />
+                  </div>
+                  <div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{locale === 'de' ? 'Adresse' : 'Address'}</p>
+                    <address class="font-medium text-slate-900 dark:text-white not-italic">{contact.address}</address>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <!-- CTA Card -->
+          <div class="lg:col-span-1">
+            <Card class="h-full bg-brand-600 text-white" padding="lg">
+              <h2 class="font-display text-2xl font-bold mb-4">
+                {locale === 'de' ? 'Direkt bestellen' : 'Order Directly'}
+              </div>
+              <p class="text-brand-100 mb-6">
+                {locale === 'de'
+                  ? 'Sichern Sie sich Ihren 3-in-1 Spender jetzt in unserem Online-Shop. Kostenloser Versand ab 50 €.'
+                  : 'Get your 3-in-1 dispenser now in our online shop. Free shipping over €50.'}
+              </p>
+              <Button href={cta.href} variant="secondary" class="w-full" isExternal={cta.external}>
+                {cta.label}
+              </Button>
+            </Card>
+          </div>
+
+          <!-- B2B Card -->
+          <div class="lg:col-span-1">
+            <Card class="h-full border-brand-200 dark:border-brand-800" padding="lg">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                  <Icon name="building-2" size={20} class="text-brand-600 dark:text-brand-400" aria-label="" />
+                </div>
+                <h2 class="font-display text-xl font-bold text-slate-900 dark:text-white">
+                  {b2b.title}
+                </h2>
+              </div>
+              <p class="text-slate-600 dark:text-slate-400 mb-6">{b2b.desc}</p>
+              <Button href={b2b.ctaHref} variant="primary" class="w-full">
+                {b2b.ctaLabel}
+              </Button>
+            </Card>
+          </div>
+
+          <!-- Contact Form -->
+          <div class="lg:col-span-3">
+            <Card padding="lg">
+              <h2 class="font-display text-2xl font-bold text-slate-900 dark:text-white mb-6">
+                {form.title}
+              </h2>
+              <form class="grid md:grid-cols-2 gap-6" action="https://api.seifenspender.example/contact" method="POST">
+                {form.fields.map((field) => (
+                  <div class={field.name === 'message' ? 'md:col-span-2' : ''}>
+                    <label for={field.name} class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      {field.label} {field.required && <span class="text-red-500" aria-hidden="true">*</span>}
+                    </label>
+                    {field.type === 'textarea' ? (
+                      <textarea
+                        id={field.name}
+                        name={field.name}
+                        required={field.required}
+                        rows={5}
+                        class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-shadow"
+                        placeholder={field.label}
+                      ></textarea>
+                    ) : field.type === 'select' ? (
+                      <select
+                        id={field.name}
+                        name={field.name}
+                        required={field.required}
+                        class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-shadow"
+                      >
+                        {field.options.map((opt) => (
+                          <option value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={field.type}
+                        id={field.name}
+                        name={field.name}
+                        required={field.required}
+                        class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-shadow"
+                        placeholder={field.label}
+                      />
+                    )}
+                  </div>
+                ))}
+                <div class="md:col-span-2">
+                  <Button type="submit" variant="primary" size="lg" class="w-full md:w-auto">
+                    {form.submitLabel}
+                  </Button>
+                </div>
+              </form>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-4 text-center hidden" id="form-success">
+                {form.successMessage}
+              </p>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </Section>
+  </Layout>
+</BaseLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    const successMsg = document.getElementById('form-success');
+    if (form && successMsg) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        try {
+          await fetch(form.action, { method: 'POST', body: formData });
+          form.classList.add('hidden');
+          successMsg.classList.remove('hidden');
+        } catch {
+          alert('Fehler beim Senden. Bitte versuchen Sie es später erneut.');
+        }
+      });
+    }
+  });
+</script>

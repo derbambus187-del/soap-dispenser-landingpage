@@ -1,0 +1,261 @@
+{
+  "1": {
+    "inputs": {
+      "unet_name": "flux1-dev.safetensors",
+      "weight_dtype": "fp8"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Flux UNET"
+    }
+  },
+  "2": {
+    "inputs": {
+      "clip_name1": "t5xxl_fp16.safetensors",
+      "clip_name2": "clip_l.safetensors",
+      "type": "flux",
+      "device": "default"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {
+      "title": "Load Flux CLIPs"
+    }
+  },
+  "3": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load Flux VAE"
+    }
+  },
+  "4": {
+    "inputs": {
+      "control_net_name": "flux_canny.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load Flux ControlNet Canny"
+    }
+  },
+  "5": {
+    "inputs": {
+      "control_net_name": "flux_depth.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load Flux ControlNet Depth"
+    }
+  },
+  "6": {
+    "inputs": {
+      "image": "dispenser_canny.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Canny"
+    }
+  },
+  "7": {
+    "inputs": {
+      "image": "dispenser_depth.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Depth"
+    }
+  },
+  "8": {
+    "inputs": {
+      "guidance": 3.5,
+      "conditioning": [
+        "10",
+        0
+      ],
+      "control_net": [
+        "4",
+        0
+      ],
+      "image": [
+        "6",
+        0
+      ],
+      "strength": 0.7,
+      "start_percent": 0.0,
+      "end_percent": 1.0
+    },
+    "class_type": "FluxControlNetApply",
+    "_meta": {
+      "title": "Apply Flux Canny ControlNet"
+    }
+  },
+  "9": {
+    "inputs": {
+      "guidance": 3.5,
+      "conditioning": [
+        "8",
+        0
+      ],
+      "control_net": [
+        "5",
+        0
+      ],
+      "image": [
+        "7",
+        0
+      ],
+      "strength": 0.5,
+      "start_percent": 0.0,
+      "end_percent": 0.8
+    },
+    "class_type": "FluxControlNetApply",
+    "_meta": {
+      "title": "Apply Flux Depth ControlNet"
+    }
+  },
+  "10": {
+    "inputs": {
+      "text": "commercial product photography of 3-in-1 soap dispenser, front view, 85mm lens, three chambers with liquid soap (pale green), foam (white), toothpaste (white), matte white plastic, dark matte cap, chrome IR sensor, three LED indicators green/cyan/amber, mode button M, studio lighting, large softbox, white seamless, soft shadows, 8k, sharp, photorealistic",
+      "clip": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Positive Prompt"
+    }
+  },
+  "11": {
+    "inputs": {
+      "text": "blurry, low quality, distorted, wrong colors, extra chambers, missing parts, cartoon, illustration, watermark, text, logo, amateur, harsh shadows",
+      "clip": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Negative Prompt"
+    }
+  },
+  "12": {
+    "inputs": {
+      "guidance": 3.5,
+      "conditioning": [
+        "11",
+        0
+      ],
+      "control_net": [
+        "4",
+        0
+      ],
+      "image": [
+        "6",
+        0
+      ],
+      "strength": 0.7,
+      "start_percent": 0.0,
+      "end_percent": 1.0
+    },
+    "class_type": "FluxControlNetApply",
+    "_meta": {
+      "title": "Apply Canny to Negative"
+    }
+  },
+  "13": {
+    "inputs": {
+      "guidance": 3.5,
+      "conditioning": [
+        "12",
+        0
+      ],
+      "control_net": [
+        "5",
+        0
+      ],
+      "image": [
+        "7",
+        0
+      ],
+      "strength": 0.5,
+      "start_percent": 0.0,
+      "end_percent": 0.8
+    },
+    "class_type": "FluxControlNetApply",
+    "_meta": {
+      "title": "Apply Depth to Negative"
+    }
+  },
+  "14": {
+    "inputs": {
+      "noise_seed": 123456789,
+      "steps": 28,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "9",
+        0
+      ],
+      "negative": [
+        "13",
+        0
+      ],
+      "latent_image": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "Flux Sampler"
+    }
+  },
+  "15": {
+    "inputs": {
+      "width": 1024,
+      "height": 1280,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent"
+    }
+  },
+  "16": {
+    "inputs": {
+      "samples": [
+        "14",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Decode Flux"
+    }
+  },
+  "17": {
+    "inputs": {
+      "filename_prefix": "dispenser_flux_front",
+      "images": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Flux Result"
+    }
+  }
+}

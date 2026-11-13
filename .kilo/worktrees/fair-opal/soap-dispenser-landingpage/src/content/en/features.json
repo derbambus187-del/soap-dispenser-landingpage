@@ -1,0 +1,34 @@
+{
+  "features": [
+    {
+      "icon": "shield-check",
+      "title": "Hygienic & Touchless",
+      "desc": "Infrared sensor detects your hand and dispenses the desired amount – completely touch-free. No germs, no drips, no cross-contamination between the three chambers."
+    },
+    {
+      "icon": "layout-grid",
+      "title": "Space-Saving & Tidy",
+      "desc": "One device replaces three separate dispensers or tubes. Ideal for small bathrooms, guest toilets, or minimalist interiors. Less clutter, more aesthetics."
+    },
+    {
+      "icon": "leaf",
+      "title": "Sustainable Refill System",
+      "desc": "The 300 ml chambers are refilled via large refill packs (1 L soap, 500 ml foam, 300 ml paste). Less plastic waste, lower carbon footprint, more cost-effective long-term."
+    },
+    {
+      "icon": "cpu",
+      "title": "Smart & Customizable",
+      "desc": "Three dosing levels per chamber (0.5–2.0 ml), adjustable via buttons on the device. Optional app control (firmware update Q2 2025): usage stats, refill reminders, guest mode."
+    },
+    {
+      "icon": "palette",
+      "title": "Design That Fits",
+      "desc": "Four color variants (White, Black, Chrome, Matte White), clean lines, matte finishes. Seamlessly integrates into any bathroom design – from hotel-style to Scandi-chic."
+    },
+    {
+      "icon": "battery",
+      "title": "Long Runtime, Fast Charging",
+      "desc": "The 2000 mAh Li-ion battery lasts up to 6 months (at 20 uses/day). USB-C charging in approx. 3 hours. LED status indicator shows charge level."
+    }
+  ]
+}

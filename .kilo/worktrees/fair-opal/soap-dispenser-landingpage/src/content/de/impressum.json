@@ -1,0 +1,49 @@
+{
+  "title": "Impressum",
+  "sections": [
+    {
+      "heading": "Angaben gemäß § 5 TMG",
+      "items": [
+        "3-in-1 Seifenspender GmbH",
+        "Musterstraße 123",
+        "10117 Berlin",
+        "Deutschland"
+      ]
+    },
+    {
+      "heading": "Kontakt",
+      "items": [
+        "E-Mail: info@seifenspender.example",
+        "Telefon: +49 123 4567890"
+      ]
+    },
+    {
+      "heading": "Umsatzsteuer-ID",
+      "items": [
+        "DE123456789"
+      ]
+    },
+    {
+      "heading": "Verantwortlich für den Inhalt gemäß § 18 Abs. 2 MDStV",
+      "items": [
+        "Max Mustermann",
+        "Musterstraße 123",
+        "10117 Berlin"
+      ]
+    },
+    {
+      "heading": "Haftungsausschluss",
+      "items": [
+        "Die Inhalte dieser Website werden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte wird keine Gewähr übernommen.",
+        "Als Dienstanbieter sind wir für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach den §§ 7 bis 10 TMG sind wir jedoch nicht verpflichtet, überwachene oder nach den Umständen ermittelbare Fremde Inhalte zu überwachen.",
+        "Verlinkungen auf Websites Dritter unterliegen nicht unserer Kontrolle. Für solche externen Inhalte können wir keine Verantwortung übernehmen."
+      ]
+    },
+    {
+      "heading": "EU-Streitschlichtung",
+      "items": [
+        "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung bereit: https://ec.europa.eu/consumers/odr"
+      ]
+    }
+  ]
+}

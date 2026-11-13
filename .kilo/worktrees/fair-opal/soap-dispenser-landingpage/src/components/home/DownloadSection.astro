@@ -1,0 +1,86 @@
+---
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Section from '@/components/ui/Section.astro';
+
+interface Props {
+  locale: 'de' | 'en';
+}
+
+const { locale } = Astro.props;
+
+const t = {
+  de: {
+    title: 'Download / Quellcode',
+    subtitle: 'Die komplette Landingpage als ZIP herunterladen.',
+    desc: 'Das Paket enthält den vollständigen Quellcode der Website: alle Astro-Komponenten, die Tailwind-Konfiguration, die i18n-Inhalte (DE/EN) sowie das interaktive 3D-Modell.',
+    file: 'soap-dispenser-landingpage.zip',
+    btn: 'ZIP herunterladen',
+    meta: 'ZIP · Vollständiger Quellcode · Sofortiger Download',
+  },
+  en: {
+    title: 'Download / Source Code',
+    subtitle: 'Download the complete landing page as a ZIP file.',
+    desc: 'The package contains the full source code of the website: all Astro components, the Tailwind configuration, the i18n content (DE/EN), and the interactive 3D model.',
+    file: 'soap-dispenser-landingpage.zip',
+    btn: 'Download ZIP',
+    meta: 'ZIP · Full source code · Instant download',
+  },
+}[locale];
+---
+
+<Section id="download" class="bg-neutral-50 dark:bg-neutral-900/50" padding="lg">
+  <div class="container-page">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12 lg:mb-16 animate-in">
+        <h2 class="font-display text-display-md font-bold text-neutral-900 dark:text-neutral-50 mb-3">
+          {t.title}
+        </h2>
+        <p class="text-body-lg text-neutral-600 dark:text-neutral-400 mb-1 max-w-xl mx-auto">
+          {t.subtitle}
+        </p>
+      </div>
+
+      <div class="card-elevated p-8 lg:p-12 animate-in stagger-1">
+        <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div>
+            <h3 class="font-heading text-heading-lg font-bold text-neutral-900 dark:text-neutral-50 mb-3">
+              {t.file}
+            </h3>
+            <p class="text-body text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
+              {t.desc}
+            </p>
+            <ul class="space-y-3 text-body text-neutral-600 dark:text-neutral-400" role="list">
+              <li class="flex items-center gap-3">
+                <Icon name="file-zip" size={18} class="text-neutral-400" aria-hidden="true" />
+                <span>Komplette Website (Astro + Tailwind)</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <Icon name="layers" size={18} class="text-neutral-400" aria-hidden="true" />
+                <span>i18n-Inhalte (Deutsch & English)</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <Icon name="cube" size={18} class="text-neutral-400" aria-hidden="true" />
+                <span>Interaktives 3D-Spender-Modell</span>
+              </li>
+            </ul>
+          </div>
+          <div class="flex flex-col items-center justify-center gap-4">
+            <Button
+              href={`/${t.file}`}
+              variant="primary"
+              size="lg"
+              class="w-full md:w-auto flex items-center justify-center gap-2"
+            >
+              <Icon name="download" size={20} aria-hidden="true" />
+              {t.btn}
+            </Button>
+            <p class="text-body-sm text-neutral-500 dark:text-neutral-400 font-medium">
+              {t.meta}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Section>

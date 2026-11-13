@@ -1,0 +1,5 @@
+{
+    "dotnet.defaultSolution": "SampleApp/SampleApp.sln",
+    "chat.editor.preferCopilotHarness": false,
+    "chat.defaultToCopilotHarness": false
+}

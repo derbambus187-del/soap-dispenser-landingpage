@@ -1,0 +1,109 @@
+---
+import Layout from '@/components/layout/Layout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import featuresData from '@/content/en/features.json';
+
+const locale = 'en';
+const currentPath = '/en/features';
+const { features } = featuresData;
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": features.map((f, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": f.title,
+      "description": f.desc
+    }))
+  }
+];
+---
+
+<BaseLayout
+  title="Features – 3-in-1 Soap Dispenser"
+  description="Discover all features: hygienic touchless, space-saving, sustainable, smart, design-forward, long battery life."
+  locale={locale}
+  jsonLd={jsonLd}
+>
+  <Layout locale={locale} currentPath={currentPath}>
+    <!-- Hero -->
+    <section class="bg-slate-900 dark:bg-black text-white py-16 md:py-24">
+      <div class="container-page">
+        <div class="max-w-3xl">
+          <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            Features that convince.
+          </h1>
+          <p class="text-xl text-slate-300">
+            Thought through to the last detail – for your best bathroom experience.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Grid -->
+    <Section padding="xl" class="bg-white dark:bg-slate-950">
+      <div class="container-page">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {features.map((feature) => (
+            <div class="group bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 hover:shadow-xl hover:border-brand-300 dark:hover:border-brand-700 transition-all duration-300">
+              <div class="w-14 h-14 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Icon name={feature.icon} size={28} class="text-brand-600 dark:text-brand-400" aria-label="" />
+              </div>
+              <h3 class="font-display text-xl font-semibold text-slate-900 dark:text-white mb-3">
+                {feature.title}
+              </h3>
+              <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                {feature.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Section>
+
+    <!-- Benefits Summary -->
+    <Section padding="xl" class="bg-slate-50 dark:bg-slate-900/50">
+      <div class="container-page">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="font-display text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-6">
+              Why 3-in-1?
+            </h2>
+            <div class="space-y-4">
+              {[
+                { icon: 'check-circle', text: 'Up to 70% less plastic waste via refill system' },
+                { icon: 'check-circle', text: '3× less space than separate dispensers' },
+                { icon: 'check-circle', text: '100% touchless – ideal for hygiene standards' },
+                { icon: 'check-circle', text: 'Individually adjustable dosing per chamber' },
+                { icon: 'check-circle', text: 'App-ready for smart features (Q2 2025)' },
+              ].map((item) => (
+                <div class="flex items-start gap-3">
+                  <div class="flex-shrink-0 w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mt-0.5">
+                    <Icon name={item.icon} size={18} class="text-brand-600 dark:text-brand-400" aria-label="" />
+                  </div>
+                  <p class="text-slate-700 dark:text-slate-300">{item.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="relative">
+            <div class="aspect-square max-w-md mx-auto bg-gradient-to-br from-brand-100 to-teal-50 dark:from-brand-900/30 dark:to-teal-900/20 rounded-3xl flex items-center justify-center">
+              <div class="text-center p-8">
+                <div class="w-32 h-32 mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-lg flex items-center justify-center mb-6">
+                  <Icon name="award" size={64} class="text-brand-500" aria-label="" />
+                </div>
+                <p class="text-slate-400 dark:text-slate-500 text-sm">
+                  Award-winning design
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Section>
+  </Layout>
+</BaseLayout>

@@ -1,0 +1,34 @@
+{
+  "features": [
+    {
+      "icon": "shield-check",
+      "title": "Hygienisch & berührungslos",
+      "desc": "Infrarot-Sensor erkennt Ihre Hand und gibt die gewünschte Menge aus – ganz ohne Berührung. Keine Keime, kein Kleckern, keine Kreuzkontamination zwischen den drei Kammern."
+    },
+    {
+      "icon": "layout-grid",
+      "title": "Platzsparend & aufgeräumt",
+      "desc": "Ein Gerät ersetzt drei separate Spender oder Tuben. Ideal für kleine Bäder, Gästetoiletten oder minimalistische Einrichtung. Weniger Unordnung, mehr Ästhetik."
+    },
+    {
+      "icon": "leaf",
+      "title": "Nachhaltig durch Nachfüllsystem",
+      "desc": "Die 300-ml-Kammern werden über große Nachfüllpacks (1 L Seife, 500 ml Schaum, 300 ml Paste) befüllt. Weniger Plastikmüll, geringerer CO₂-Fußabdruck, langfristig günstiger."
+    },
+    {
+      "icon": "cpu",
+      "title": "Smart & anpassbar",
+      "desc": "Drei Dosierstufen pro Kammer (0,5–2,0 ml), einstellbar über Tasten am Gerät. Optional per App steuerbar (Firmware-Update Q2 2025): Verbrauchsstatistiken, Nachfüll-Erinnerungen, Gastmodus."
+    },
+    {
+      "icon": "palette",
+      "title": "Design, das passt",
+      "desc": "Vier Farbvarianten (Weiß, Schwarz, Chrom, Matt-Weiß), klare Linien, mattierte Oberflächen. Fügt sich nahtlos in jedes Badezimmer-Design ein – vom Hotel-Style bis Skandi-Chic."
+    },
+    {
+      "icon": "battery",
+      "title": "Lange Laufzeit, schnelles Laden",
+      "desc": "Der 2000-mAh-Li-Ion-Akku hält bis zu 6 Monate (bei 20 Nutzungen/Tag). Laden per USB-C in ca. 3 Stunden. LED-Statusanzeige zeigt Ladestand an."
+    }
+  ]
+}

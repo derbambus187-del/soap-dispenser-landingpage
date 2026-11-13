@@ -1,0 +1,140 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+import { cx } from 'class-variance-authority';
+
+interface Mode {
+  key: string;
+  title: string;
+  description: string;
+  viscosity: string;
+  dose: string;
+  icon: string;
+}
+
+interface Props {
+  modes: Record<string, Mode>;
+  defaultMode?: string;
+  locale: 'de' | 'en';
+}
+
+const { modes, defaultMode = 'soap', locale } = Astro.props;
+const modeKeys = Object.keys(modes);
+---
+
+<div class="mode-selector" data-default-mode={defaultMode}>
+  <!-- Tabs -->
+  <div class="flex flex-wrap gap-2 mb-8 justify-center" role="tablist" aria-label={locale === 'de' ? 'Produktmodi' : 'Product modes'}>
+    {modeKeys.map((key) => {
+      const mode = modes[key];
+      const isActive = key === defaultMode;
+      return (
+        <button
+          role="tab"
+          aria-selected={isActive}
+          aria-controls={`panel-${key}`}
+          id={`tab-${key}`}
+          class={cx(
+            'flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-body-sm border-2 transition-all duration-200',
+            isActive
+              ? 'border-brand-600 text-brand-600 bg-brand-50 dark:bg-brand-900/20 shadow-sm'
+              : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+          )}
+          data-tab={key}
+        >
+          <Icon name={mode.icon} size={20} aria-hidden="true" />
+          {mode.title}
+        </button>
+      );
+    })}
+  </div>
+
+  <!-- Panels -->
+  <div class="relative">
+    {modeKeys.map((key) => {
+      const mode = modes[key];
+      const isActive = key === defaultMode;
+      return (
+        <div
+          id={`panel-${key}`}
+          role="tabpanel"
+          aria-labelledby={`tab-${key}`}
+          class={cx(
+            'grid lg:grid-cols-2 gap-8 lg:gap-12 p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 transition-all duration-300',
+            isActive ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none absolute inset-0'
+          )}
+          data-panel={key}
+          style={!isActive ? 'display: none;' : ''}
+        >
+          <div class="animate-in">
+            <h3 class="font-display text-display-sm font-bold text-neutral-900 dark:text-neutral-50 mb-3">
+              {mode.title}
+            </h3>
+            <p class="text-body-lg text-neutral-600 dark:text-neutral-400 mb-6">
+              {mode.description}
+            </p>
+            <dl class="space-y-3 text-body-sm divide-y divide-neutral-200 dark:divide-neutral-800">
+              <div class="flex justify-between py-2">
+                <dt class="text-neutral-500 dark:text-neutral-400">{locale === 'de' ? 'Viskosität' : 'Viscosity'}</dt>
+                <dd class="font-medium text-neutral-900 dark:text-neutral-50">{mode.viscosity}</dd>
+              </div>
+              <div class="flex justify-between py-2">
+                <dt class="text-neutral-500 dark:text-neutral-400">{locale === 'de' ? 'Dosiermenge' : 'Dose amount'}</dt>
+                <dd class="font-medium text-neutral-900 dark:text-neutral-50">{mode.dose}</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="flex items-center justify-center lg:justify-end animate-in stagger-1">
+            <div class="w-48 h-48 rounded-full bg-gradient-to-br from-brand-100 to-neutral-200 dark:from-brand-900/30 dark:to-neutral-800 flex items-center justify-center shadow-lg">
+              <Icon name={mode.icon} size={96} class="text-brand-500 dark:text-brand-400" aria-hidden="true" />
+            </div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const selector = document.querySelector('.mode-selector');
+    if (!selector) return;
+
+    const tabs = selector.querySelectorAll('[data-tab]');
+    const panels = selector.querySelectorAll('[data-panel]');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const mode = tab.getAttribute('data-tab');
+        tabs.forEach((t) => {
+          const isActive = t.getAttribute('data-tab') === mode;
+          t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          if (isActive) {
+            t.classList.add('border-brand-600', 'text-brand-600', 'bg-brand-50', 'dark:bg-brand-900/20', 'shadow-sm');
+            t.classList.remove('border-neutral-200', 'dark:border-neutral-700', 'text-neutral-600', 'dark:text-neutral-400');
+          } else {
+            t.classList.remove('border-brand-600', 'text-brand-600', 'bg-brand-50', 'dark:bg-brand-900/20', 'shadow-sm');
+            t.classList.add('border-neutral-200', 'dark:border-neutral-700', 'text-neutral-600', 'dark:text-neutral-400');
+          }
+        });
+
+        panels.forEach((panel) => {
+          if (panel.getAttribute('data-panel') === mode) {
+            panel.style.display = '';
+            requestAnimationFrame(() => {
+              panel.classList.remove('opacity-0', 'invisible', 'pointer-events-none', 'absolute', 'inset-0');
+              panel.classList.add('opacity-100', 'visible');
+            });
+          } else {
+            panel.classList.add('opacity-0', 'invisible', 'pointer-events-none');
+            panel.classList.remove('opacity-100', 'visible');
+            setTimeout(() => {
+              if (panel.classList.contains('opacity-0')) {
+                panel.style.display = 'none';
+              }
+            }, 300);
+          }
+        });
+      });
+    });
+  });
+</script>

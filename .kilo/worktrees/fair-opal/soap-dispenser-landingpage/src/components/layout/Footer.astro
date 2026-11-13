@@ -1,0 +1,106 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+import { getAlternatePath } from '@/i18n/utils';
+
+interface Props {
+  locale: 'de' | 'en';
+}
+
+const { locale } = Astro.props;
+
+const footerLinks = [
+  {
+    title: locale === 'de' ? 'Produkt' : 'Product',
+    links: [
+      { label: locale === 'de' ? 'Startseite' : 'Home', href: `/${locale}/` },
+      { label: locale === 'de' ? 'Produkt' : 'Product', href: `/${locale}/produkt/` },
+      { label: locale === 'de' ? 'Funktionen' : 'Features', href: `/${locale}/funktionen/` },
+      { label: locale === 'de' ? 'Anwendung' : 'Usage', href: `/${locale}/anwendung/` },
+    ],
+  },
+  {
+    title: locale === 'de' ? 'Unternehmen' : 'Company',
+    links: [
+      { label: locale === 'de' ? 'Kontakt' : 'Contact', href: `/${locale}/kontakt/` },
+      { label: locale === 'de' ? 'FAQ' : 'FAQ', href: `/${locale}/faq/` },
+      { label: locale === 'de' ? 'Impressum' : 'Imprint', href: `/${locale}/impressum/` },
+      { label: locale === 'de' ? 'Datenschutz' : 'Privacy', href: `/${locale}/datenschutz/` },
+    ],
+  },
+  {
+    title: locale === 'de' ? 'Kontakt' : 'Contact',
+    links: [
+      { label: 'info@seifenspender.example', href: 'mailto:info@seifenspender.example' },
+      { label: '+49 123 4567890', href: 'tel:+491234567890' },
+    ],
+  },
+];
+
+const socials = [
+  { name: 'Instagram', icon: 'instagram', href: '#' },
+  { name: 'Facebook', icon: 'facebook', href: '#' },
+  { name: 'Pinterest', icon: 'pin', href: '#' },
+];
+---
+
+<footer class="bg-neutral-900 dark:bg-neutral-950 text-neutral-400 dark:text-neutral-500 mt-auto">
+  <div class="container-page py-12 lg:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      <!-- Brand -->
+      <div class="lg:col-span-1">
+        <a href={`/${locale}/`} class="flex items-center gap-2 font-display font-bold text-xl text-white mb-4">
+          <div class="w-9 h-9 rounded-lg bg-brand-500 flex items-center justify-center">
+            <Icon name="droplet" size={22} class="text-white" aria-hidden="true" />
+          </div>
+          <span>3-in-1</span>
+        </a>
+        <p class="text-body-sm text-neutral-500 dark:text-neutral-400 mb-6 max-w-xs">
+          {locale === 'de'
+            ? 'Ein Spender. Drei Möglichkeiten. Hygienisch, platzsparend, smart.'
+            : 'One dispenser. Three options. Hygienic, space-saving, smart.'}
+        </p>
+        <div class="flex gap-3">
+          {socials.map((s) => (
+            <a
+              href={s.href}
+              aria-label={s.name}
+              class="w-10 h-10 rounded-lg bg-neutral-800 hover:bg-brand-600 hover:text-white transition-all duration-300 ease-spring flex items-center justify-center"
+            >
+              <Icon name={s.icon} size={20} aria-hidden="true" />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Link columns -->
+      {footerLinks.map((col) => (
+        <div>
+          <h3 class="font-semibold text-white mb-4">{col.title}</h3>
+          <ul class="space-y-3" role="list">
+            {col.links.map((link) => (
+              <li>
+                <a href={link.href} class="text-body-sm hover:text-white transition-colors duration-300 ease-spring">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="border-t border-neutral-800 mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-body-sm">
+      <p>&copy; {new Date().getFullYear()} 3-in-1 Seifenspender. {locale === 'de' ? 'Alle Rechte vorbehalten.' : 'All rights reserved.'}</p>
+      <div class="flex items-center gap-4">
+        <a href={getAlternatePath(Astro.url.pathname, 'en')} class="hover:text-white transition-colors duration-300 ease-spring font-medium">
+          EN
+        </a>
+        <span class="text-neutral-600 dark:text-neutral-500">|</span>
+        <a href={getAlternatePath(Astro.url.pathname, 'de')} class="hover:text-white transition-colors duration-300 ease-spring font-medium">
+          DE
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

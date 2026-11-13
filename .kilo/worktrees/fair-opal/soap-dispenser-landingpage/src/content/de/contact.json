@@ -1,0 +1,32 @@
+{
+  "title": "Kontakt & Bestellung",
+  "subtitle": "Haben Sie Fragen oder möchten Sie den 3-in-1 Spender bestellen? Wir helfen gerne weiter.",
+  "contact": {
+    "email": "info@seifenspender.example",
+    "phone": "+49 123 4567890",
+    "address": "Musterstraße 123, 10115 Berlin, Deutschland",
+    "hours": "Mo–Fr 9:00–18:00 Uhr"
+  },
+  "cta": {
+    "label": "Jetzt im Shop bestellen",
+    "href": "https://shop.seifenspender.example",
+    "external": true
+  },
+  "b2b": {
+    "title": "B2B & Partnerschaften",
+    "desc": "Sie betreiben ein Hotel, Fitnessstudio, Coworking-Space oder möchten den Spender in Ihrem Sortiment führen? Sprechen Sie uns an für Mengenrabatte, individuelle Branding-Optionen und White-Label-Lösungen.",
+    "ctaLabel": "B2B-Anfrage stellen",
+    "ctaHref": "mailto:b2b@seifenspender.example"
+  },
+  "form": {
+    "title": "Nachricht senden",
+    "fields": [
+      { "name": "name", "label": "Name", "type": "text", "required": true },
+      { "name": "email", "label": "E-Mail", "type": "email", "required": true },
+      { "name": "subject", "label": "Betreff", "type": "select", "options": ["Produktfrage", "Bestellung", "B2B/Partnerschaft", "Support", "Sonstiges"], "required": true },
+      { "name": "message", "label": "Nachricht", "type": "textarea", "required": true }
+    ],
+    "submitLabel": "Absenden",
+    "successMessage": "Vielen Dank! Wir melden uns innerhalb von 24 Stunden bei Ihnen."
+  }
+}

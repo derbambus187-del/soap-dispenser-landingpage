@@ -1,0 +1,37 @@
+---
+import Section from '@/components/ui/Section.astro';
+
+interface Props {
+  locale: 'de' | 'en';
+  specs: Array<{ label: string; value: string }>;
+}
+
+const { locale, specs } = Astro.props;
+---
+
+<Section class="bg-white dark:bg-neutral-950" padding="lg">
+  <div class="container-page">
+    <div class="text-center max-w-2xl mx-auto mb-12 lg:mb-16 animate-in">
+      <h2 class="font-display text-display-md font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+        {locale === 'de' ? 'Technische Details' : 'Technical Details'}
+      </h2>
+      <p class="text-body-lg text-neutral-600 dark:text-neutral-400">
+        {locale === 'de'
+          ? 'Alle Spezifikationen auf einen Blick – für Ihre fundierte Entscheidung.'
+          : 'All specifications at a glance – for your informed decision.'}
+      </p>
+    </div>
+    <dl class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto" role="list">
+      {specs.map((spec, index) => (
+        <div class="group card p-6 animate-in stagger-{index + 1}" role="listitem">
+          <dt class="text-body-sm text-neutral-500 dark:text-neutral-400 mb-2">
+            {spec.label}
+          </dt>
+          <dd class="font-display text-body font-semibold text-neutral-900 dark:text-neutral-50">
+            {spec.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</Section>

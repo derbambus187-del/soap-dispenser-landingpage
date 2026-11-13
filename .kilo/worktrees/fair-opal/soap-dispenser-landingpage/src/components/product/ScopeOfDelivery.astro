@@ -1,0 +1,36 @@
+---
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+
+interface Props {
+  locale: 'de' | 'en';
+  items: string[];
+}
+
+const { locale, items } = Astro.props;
+---
+
+<Section class="bg-neutral-50 dark:bg-neutral-900/50" padding="lg">
+  <div class="container-page">
+    <div class="text-center max-w-2xl mx-auto mb-12 lg:mb-16 animate-in">
+      <h2 class="font-display text-display-md font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+        {locale === 'de' ? 'Lieferumfang' : 'Scope of Delivery'}
+      </h2>
+      <p class="text-body-lg text-neutral-600 dark:text-neutral-400">
+        {locale === 'de'
+          ? 'Alles, was Sie für den sofortigen Start brauchen – in der Box enthalten.'
+          : 'Everything you need to get started right away – included in the box.'}
+      </p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+      {items.map((item, index) => (
+        <div class="flex items-start gap-4 card p-5 animate-in stagger-{index + 1}">
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mt-0.5">
+            <Icon name="check" size={20} class="text-brand-600 dark:text-brand-400" aria-hidden="true" />
+          </div>
+          <p class="text-body text-neutral-700 dark:text-neutral-300 pt-0.5">{item}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</Section>

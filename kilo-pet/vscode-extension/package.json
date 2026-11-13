@@ -1,0 +1,44 @@
+{
+  "name": "kilo-pet",
+  "displayName": "Kilo Pet",
+  "description": "A movable Kilo status pet in the VS Code panel.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onView:kiloPet.view",
+    "onCommand:kiloPet.open"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "kiloPet.open",
+        "title": "Kilo Pet: Open"
+      }
+    ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "kiloPet",
+          "title": "Kilo Pet",
+          "icon": "pet.svg"
+        }
+      ]
+    },
+    "views": {
+      "kiloPet": [
+        {
+          "type": "webview",
+          "id": "kiloPet.view",
+          "name": "Kilo Pet"
+        }
+      ]
+    }
+  }
+}

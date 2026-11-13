@@ -1,0 +1,56 @@
+---
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Dispenser3D from '@/components/product/Dispenser3D.astro';
+import Card from '@/components/ui/Card.astro';
+
+interface Props {
+  locale: 'de' | 'en';
+  data: {
+    techSpecs: Array<{
+      label: string;
+      value: string;
+    }>;
+  };
+}
+
+const { locale, data } = Astro.props;
+const { techSpecs } = data;
+---
+
+<Section class="bg-white dark:bg-neutral-950" padding="lg">
+  <div class="container-page">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+      <!-- Left: specs grid -->
+      <div class="animate-in">
+        <h2 class="font-display text-display-md font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+          {locale === 'de' ? 'Technische Daten' : 'Technical Specifications'}
+        </h2>
+        <p class="text-body-lg text-neutral-600 dark:text-neutral-400 mb-8 max-w-lg">
+          {locale === 'de'
+            ? 'Alles auf einen Blick – kompakt, leistungsstark, zuverlässig.'
+            : 'Everything at a glance – compact, powerful, reliable.'}
+        </p>
+        <dl class="grid grid-cols-2 gap-4" role="list">
+          {techSpecs.map((spec, index) => (
+            <div class={['group', index % 2 === 0 ? '' : '']} role="listitem">
+              <Card class="p-5 transition-transform duration-300 ease-spring group-hover:-translate-y-1">
+                <dt class="text-body-sm text-neutral-500 dark:text-neutral-400 mb-1.5">
+                  {spec.label}
+                </dt>
+                <dd class="font-display text-body font-semibold text-neutral-900 dark:text-neutral-50">
+                  {spec.value}
+                </dd>
+              </Card>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <!-- Right: 3D Model -->
+      <div class="relative hidden lg:block animate-in stagger-2">
+        <Dispenser3D locale={locale} class="w-full max-w-md mx-auto" />
+      </div>
+    </div>
+  </div>
+</Section>

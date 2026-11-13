@@ -1,0 +1,27 @@
+{
+  "hero": {
+    "headline": "Ein Spender. Drei Möglichkeiten.",
+    "subheadline": "Seife, Rasierschaum & Zahnpasta – hygienisch, platzsparend, smart.",
+    "ctaPrimary": { "label": "Jetzt entdecken", "href": "/de/produkt" },
+    "ctaSecondary": { "label": "Video ansehen", "href": "#demo" }
+  },
+  "valueProps": [
+    { "icon": "droplet", "title": "Flüssigseife", "desc": "Für Hände & Körper – sanft zur Haut, stark gegen Keime." },
+    { "icon": "cloud", "title": "Rasierschaum", "desc": "Perfekt für Nassrasur – cremig, schützend, ergiebig." },
+    { "icon": "sparkles", "title": "Zahnpasta", "desc": "Dosiert & sauber – für strahlend saubere Zähne." }
+  ],
+  "techSpecs": [
+    { "label": "Kapazität", "value": "3 × 300 ml" },
+    { "label": "Material", "value": "ABS + Edelstahl" },
+    { "label": "Batterie", "value": "6 Monate (USB-C)" },
+    { "label": "Montage", "value": "Kleben oder Schrauben" },
+    { "label": "Sensor", "value": "Infrarot, 5 cm Reichweite" },
+    { "label": "Dosierung", "value": "0,8 / 1,2 / 1,5 ml einstellbar" },
+    { "label": "Gewicht", "value": "ca. 480 g" },
+    { "label": "Maße", "value": "22 × 8 × 12 cm (H×B×T)" }
+  ],
+  "trust": {
+    "badges": ["CE-zertifiziert", "RoHS-konform", "IPX4 Spritzwasserschutz", "2 Jahre Garantie"],
+    "reviews": "4,9 ★ (1.200+ Bewertungen)"
+  }
+}

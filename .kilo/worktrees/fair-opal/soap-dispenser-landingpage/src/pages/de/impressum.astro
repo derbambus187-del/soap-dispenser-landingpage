@@ -1,0 +1,42 @@
+---
+import Layout from '@/components/layout/Layout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+
+const locale = 'de';
+const currentPath = '/de/impressum';
+---
+
+<BaseLayout
+  title="Impressum – 3-in-1 Seifenspender"
+  description="Impressum und rechtliche Informationen der 3-in-1 Seifenspender Website."
+  locale={locale}
+>
+  <Layout locale={locale} currentPath={currentPath}>
+    <Section padding="xl" class="bg-white dark:bg-slate-950">
+      <div class="container-page max-w-3xl">
+        <h1 class="font-display text-4xl font-bold text-slate-900 dark:text-white mb-8">Impressum</h1>
+        <div class="prose prose-slate dark:prose-invert space-y-6">
+          <p><strong>Angaben gemäß § 5 TMG:</strong></p>
+          <p>
+            3-in-1 Seifenspender GmbH<br>
+            Musterstraße 123<br>
+            10115 Berlin<br>
+            Deutschland
+          </p>
+          <p><strong>Vertreten durch:</strong> Max Mustermann, Geschäftsführer</p>
+          <p><strong>Kontakt:</strong></p>
+          <p>Telefon: +49 123 4567890<br>
+          E-Mail: info@seifenspender.example</p>
+          <p><strong>Registereintrag:</strong> Amtsgericht Berlin, HRB 123456</p>
+          <p><strong>Umsatzsteuer-ID:</strong> DE123456789</p>
+          <p><strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</strong> Max Mustermann, Musterstraße 123, 10115 Berlin</p>
+          <p><strong>Streitschlichtung:</strong> Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+          <p><strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.</p>
+          <p><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
+          <p><strong>Urheberrecht:</strong> Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht.</p>
+        </div>
+      </div>
+    </Section>
+  </Layout>
+</BaseLayout>

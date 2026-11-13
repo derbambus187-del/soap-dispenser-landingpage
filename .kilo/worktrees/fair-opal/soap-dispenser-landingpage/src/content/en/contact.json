@@ -1,0 +1,32 @@
+{
+  "title": "Contact & Order",
+  "subtitle": "Have questions or want to order the 3-in-1 dispenser? We're happy to help.",
+  "contact": {
+    "email": "info@seifenspender.example",
+    "phone": "+49 123 4567890",
+    "address": "Musterstraße 123, 10115 Berlin, Germany",
+    "hours": "Mon–Fri 9:00–18:00 CET"
+  },
+  "cta": {
+    "label": "Order now in Shop",
+    "href": "https://shop.seifenspender.example",
+    "external": true
+  },
+  "b2b": {
+    "title": "B2B & Partnerships",
+    "desc": "You run a hotel, gym, coworking space, or want to carry the dispenser in your portfolio? Contact us for volume discounts, custom branding options, and white-label solutions.",
+    "ctaLabel": "Submit B2B Inquiry",
+    "ctaHref": "mailto:b2b@seifenspender.example"
+  },
+  "form": {
+    "title": "Send Message",
+    "fields": [
+      { "name": "name", "label": "Name", "type": "text", "required": true },
+      { "name": "email", "label": "Email", "type": "email", "required": true },
+      { "name": "subject", "label": "Subject", "type": "select", "options": ["Product Question", "Order", "B2B/Partnership", "Support", "Other"], "required": true },
+      { "name": "message", "label": "Message", "type": "textarea", "required": true }
+    ],
+    "submitLabel": "Send",
+    "successMessage": "Thank you! We'll get back to you within 24 hours."
+  }
+}

@@ -1,0 +1,64 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  locale: 'de' | 'en';
+  image?: string;
+  canonical?: string;
+  type?: 'website' | 'article' | 'product';
+  jsonLd?: Record<string, any>[];
+}
+
+const {
+  title,
+  description,
+  locale,
+  image = '/images/og-default.svg',
+  canonical,
+  type = 'website',
+  jsonLd = [],
+} = Astro.props;
+
+const site = 'https://seifenspender.example';
+const path = Astro.url.pathname;
+const cleanPath = path.replace(/^\/(de|en)/, '') || '/';
+
+const dePath = `/de${cleanPath === '/' ? '' : cleanPath}`;
+const enPath = `/en${cleanPath === '/' ? '' : cleanPath}`;
+const currentPath = `/${locale}${cleanPath === '/' ? '' : cleanPath}`;
+const fullUrl = canonical || `${site}${currentPath}`;
+const imageUrl = image.startsWith('http') ? image : `${site}${image}`;
+
+const siteName = locale === 'de' ? '3-in-1 Seifenspender' : '3-in-1 Soap Dispenser';
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={fullUrl} />
+
+<!-- hreflang -->
+<link rel="alternate" hreflang="de" href={`${site}${dePath}`} />
+<link rel="alternate" hreflang="en" href={`${site}${enPath}`} />
+<link rel="alternate" hreflang="x-default" href={`${site}${dePath}`} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={imageUrl} />
+<meta property="og:locale" content={locale === 'de' ? 'de_DE' : 'en_US'} />
+<meta property="og:site_name" content={siteName} />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+
+<!-- Structured data -->
+{jsonLd.map((item) => (
+  <script type="application/ld+json" set:html={JSON.stringify(item)} />
+))}
+
+<!-- Preconnect -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

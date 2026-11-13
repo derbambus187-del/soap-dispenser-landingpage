@@ -1,0 +1,27 @@
+{
+  "hero": {
+    "headline": "One dispenser. Three options.",
+    "subheadline": "Soap, shaving foam & toothpaste – hygienic, space-saving, smart.",
+    "ctaPrimary": { "label": "Discover now", "href": "/en/product" },
+    "ctaSecondary": { "label": "Watch video", "href": "#demo" }
+  },
+  "valueProps": [
+    { "icon": "droplet", "title": "Liquid Soap", "desc": "For hands & body – gentle on skin, tough on germs." },
+    { "icon": "cloud", "title": "Shaving Foam", "desc": "Perfect for wet shave – creamy, protective, economical." },
+    { "icon": "sparkles", "title": "Toothpaste", "desc": "Dosed & clean – for brilliantly clean teeth." }
+  ],
+  "techSpecs": [
+    { "label": "Capacity", "value": "3 × 300 ml" },
+    { "label": "Material", "value": "ABS + Stainless Steel" },
+    { "label": "Battery", "value": "6 months (USB-C)" },
+    { "label": "Mounting", "value": "Adhesive or screws" },
+    { "label": "Sensor", "value": "Infrared, 5 cm range" },
+    { "label": "Dosing", "value": "0.8 / 1.2 / 1.5 ml adjustable" },
+    { "label": "Weight", "value": "approx. 480 g" },
+    { "label": "Dimensions", "value": "22 × 8 × 12 cm (H×W×D)" }
+  ],
+  "trust": {
+    "badges": ["CE certified", "RoHS compliant", "IPX4 splash protection", "2 year warranty"],
+    "reviews": "4.9 ★ (1,200+ reviews)"
+  }
+}

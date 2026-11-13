@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1014" />
+    <title>Client Forge — Minecraft Client Builder</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b1014;
+        --panel: #11191f;
+        --panel-raised: #172229;
+        --line: #26363d;
+        --text: #edf5f2;
+        --muted: #91a6a4;
+        --mint: #58e0b0;
+        --mint-dark: #13382f;
+        --amber: #e7bd72;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+      body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--bg); color: var(--text); }
+      button, input, select, textarea { font: inherit; }
+      button { cursor: pointer; }
+      .shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh; }
+      aside { display: flex; flex-direction: column; padding: 24px 16px; border-right: 1px solid var(--line); background: #0e151a; }
+      .brand { display: flex; align-items: center; gap: 11px; padding: 0 8px 32px; }
+      .brand-mark { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 11px; background: var(--mint); color: #0b1714; font-weight: 900; }
+      .brand-name { font-size: 15px; font-weight: 800; letter-spacing: .04em; }
+      .brand-subtitle { margin-top: 3px; color: var(--muted); font-size: 11px; }
+      .nav-label { padding: 0 10px 10px; color: #718582; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+      .nav-item { display: flex; align-items: center; gap: 11px; margin-bottom: 5px; padding: 11px 12px; border: 1px solid transparent; border-radius: 9px; color: #9bb0ad; font-size: 13px; }
+      .nav-item.active { border-color: #24463e; background: #14251f; color: var(--mint); }
+      .nav-icon { width: 16px; text-align: center; font-size: 16px; }
+      .sidebar-note { margin-top: auto; padding: 14px; border: 1px solid var(--line); border-radius: 11px; background: #111a1f; }
+      .sidebar-note strong { display: block; margin-bottom: 5px; font-size: 12px; }
+      .sidebar-note p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+      main { min-width: 0; padding: 28px clamp(18px, 4vw, 52px) 48px; }
+      .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 32px; }
+      .crumb { color: var(--muted); font-size: 12px; }
+      .version-pill, .safe-pill { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 99px; color: #b7c8c4; font-size: 11px; }
+      .version-pill::before { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); content: ""; }
+      .hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 24px; }
+      .eyebrow { margin-bottom: 9px; color: var(--mint); font-size: 10px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; }
+      h1 { margin: 0; font-size: clamp(27px, 4vw, 39px); letter-spacing: -.045em; }
+      .hero p { max-width: 600px; margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .safe-pill { flex: 0 0 auto; color: #b9d1c8; }
+      .safe-pill span { color: var(--mint); }
+      .compat-warning { margin: -7px 0 20px; padding: 11px 13px; border: 1px solid #665331; border-radius: 9px; background: #261f13; color: #e8d1a2; font-size: 11px; line-height: 1.55; }
+      .compat-warning strong { color: #f3d48f; }
+      .workspace { display: grid; grid-template-columns: minmax(350px, .92fr) minmax(390px, 1.08fr); gap: 18px; align-items: start; }
+      .column { display: grid; gap: 16px; min-width: 0; }
+      .card { overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--panel); }
+      .card-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+      .card-title { font-size: 13px; font-weight: 750; }
+      .card-subtitle { margin-top: 4px; color: var(--muted); font-size: 11px; }
+      .step { color: #6e8580; font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+      .card-body { padding: 18px; }
+      .field { display: grid; gap: 7px; margin-bottom: 15px; }
+      .field:last-child { margin-bottom: 0; }
+      label { color: #b3c2bf; font-size: 11px; font-weight: 650; }
+      input[type="text"], input[type="color"], select, textarea {
+        width: 100%; border: 1px solid #2b3c41; border-radius: 8px; outline: none; background: #0c1317; color: var(--text);
+      }
+      input[type="text"], select { min-height: 39px; padding: 0 11px; }
+      input:focus, select:focus, textarea:focus { border-color: #4ebd99; box-shadow: 0 0 0 3px #58e0b01a; }
+      input[type="color"] { height: 39px; padding: 5px; }
+      textarea { min-height: 83px; padding: 11px; resize: vertical; line-height: 1.5; }
+      .inline-fields { display: grid; grid-template-columns: minmax(0, 1fr) 66px; gap: 12px; align-items: end; }
+      .feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .feature { display: flex; align-items: flex-start; gap: 9px; min-height: 61px; padding: 10px; border: 1px solid #2a393e; border-radius: 9px; background: #0e161a; cursor: pointer; }
+      .feature:has(input:checked) { border-color: #3a6e5e; background: #12211d; }
+      .feature input { margin: 2px 0 0; accent-color: var(--mint); }
+      .feature strong { display: block; font-size: 11px; }
+      .feature small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.35; }
+      .button-row { display: flex; gap: 9px; margin-top: 16px; }
+      .button { min-height: 39px; padding: 0 14px; border: 1px solid var(--line); border-radius: 8px; background: #19252a; color: #dce8e4; font-size: 11px; font-weight: 750; }
+      .button:hover { border-color: #46655b; }
+      .button.primary { border-color: var(--mint); background: var(--mint); color: #0b1714; }
+      .button.primary:hover { background: #75ecc3; }
+      .button:disabled { opacity: .6; cursor: wait; }
+      .button.full { width: 100%; min-height: 44px; margin-top: 14px; }
+      .assistant-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+      .assistant-model { color: #839993; font-size: 10px; }
+      .assistant-response { display: none; margin-top: 12px; padding: 11px; border: 1px solid #29443b; border-radius: 8px; background: #101f1a; color: #cfe0da; font-size: 11px; line-height: 1.55; white-space: pre-wrap; }
+      .assistant-response.visible { display: block; }
+      .game-preview-frame { width: 100%; min-height: 360px; border: 1px solid var(--line); border-radius: 9px; background: #0d1418; }
+      .status { min-height: 18px; margin-top: 10px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+      .status.error { color: #ff9a8f; }
+      .preview-card { position: sticky; top: 16px; }
+      .preview-shell { padding: 18px; background: #0d1418; }
+      .game-screen { position: relative; overflow: hidden; min-height: 370px; border: 1px solid #334249; border-radius: 9px; background: radial-gradient(ellipse at 50% 20%, #527059 0, #263c36 34%, #17272b 70%); }
+      .game-screen::before { position: absolute; inset: 0; background: linear-gradient(180deg, #0002, transparent 40%, #07110be8); content: ""; }
+      .pixel-sun { position: absolute; top: 32px; right: 12%; width: 46px; height: 46px; background: #f1d58a; box-shadow: 0 0 34px #f1d58a88; }
+      .horizon { position: absolute; right: 0; bottom: 0; left: 0; height: 46%; background: linear-gradient(180deg, transparent, #121d19 20%); }
+      .block-hill { position: absolute; bottom: 10%; left: -5%; width: 65%; height: 28%; transform: skewY(-8deg); background: linear-gradient(145deg, #52734d, #243e37); box-shadow: 25px -20px 0 #314d3d; }
+      .block-hill.right { right: -12%; bottom: 8%; left: auto; width: 60%; height: 22%; transform: skewY(10deg); background: #30483d; box-shadow: -22px -18px 0 #415b43; }
+      .hud-sample { position: absolute; z-index: 1; top: 12px; left: 12px; display: grid; gap: 4px; font: 10px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; text-shadow: 1px 1px #000; }
+      .hud-line { color: var(--preview-accent, #58e0b0); }
+      .menu { position: absolute; z-index: 2; top: 50%; left: 50%; width: min(250px, 72%); transform: translate(-50%, -40%); text-align: center; }
+      .menu h2 { margin: 0 0 5px; color: #f6f7ed; font-size: 25px; letter-spacing: .12em; text-shadow: 2px 2px #17201c; }
+      .menu p { margin: 0 0 18px; color: #d4dfd1; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; }
+      .menu-button { margin: 6px auto; padding: 9px 12px; border: 1px solid color-mix(in srgb, var(--preview-accent, #58e0b0) 78%, #fff); background: #18251edb; color: #f0f5e9; font-size: 10px; letter-spacing: .04em; }
+      .menu-button:first-of-type { background: color-mix(in srgb, var(--preview-accent, #58e0b0) 23%, #15211d); }
+      .keystrokes { position: absolute; z-index: 2; right: 12px; bottom: 12px; color: #eff8f2; font: 10px ui-monospace, monospace; text-shadow: 1px 1px #000; }
+      .preview-caption { display: flex; justify-content: space-between; gap: 10px; margin-top: 11px; color: var(--muted); font-size: 10px; }
+      .preview-caption strong { color: #c8d8d1; font-weight: 650; }
+      .provider-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(100px, .9fr); gap: 10px; align-items: end; margin-top: 13px; }
+      .subtle { color: #7d918e; font-size: 10px; line-height: 1.5; }
+      @media (max-width: 1020px) {
+        .workspace { grid-template-columns: minmax(0, 1fr); }
+        .preview-card { position: static; }
+      }
+      @media (max-width: 650px) {
+        .shell { grid-template-columns: 1fr; }
+        aside { display: none; }
+        main { padding: 18px 14px 35px; }
+        .topbar { margin-bottom: 24px; }
+        .hero { align-items: flex-start; flex-direction: column; }
+        .workspace { gap: 12px; }
+        .card-body { padding: 14px; }
+        .feature-grid { grid-template-columns: 1fr; }
+        .game-screen { min-height: 330px; }
+      }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside aria-label="Hauptnavigation">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">CF</div>
+          <div><div class="brand-name">CLIENT FORGE</div><div class="brand-subtitle">Minecraft template studio</div></div>
+        </div>
+        <div class="nav-label">Workspace</div>
+        <div class="nav-item"><span class="nav-icon" aria-hidden="true">▦</span>Übersicht</div>
+        <div class="nav-item active" aria-current="page"><span class="nav-icon" aria-hidden="true">◇</span>Client Builder</div>
+        <div class="nav-item"><span class="nav-icon" aria-hidden="true">▤</span>Meine Vorlage</div>
+        <div class="sidebar-note">
+          <strong>Saubere Basis. Dein Stil.</strong>
+          <p>Generiert wird ein eigenständiges Fabric-Projekt. Die Vorlage enthält keine unfairen Spielvorteile.</p>
+        </div>
+      </aside>
+
+      <main>
+        <div class="topbar">
+          <div class="crumb">Workspace <span aria-hidden="true">/</span> Client Builder</div>
+          <div class="version-pill">FABRIC <span id="versionLabel">26.2</span></div>
+        </div>
+        <header class="hero">
+          <div>
+            <div class="eyebrow">Dein Client. Deine Vorlage.</div>
+            <h1>Baue deinen Client</h1>
+            <p>Gestalte ein eigenes Startmenü, wähle deine HUDs und exportiere ein Fabric-Projektgerüst. Die Live-Vorschau aktualisiert sich direkt.</p>
+          </div>
+          <div class="safe-pill"><span aria-hidden="true">●</span> Clientseitig · Open Source inspiriert</div>
+        </header>
+        <div class="compat-warning" role="note"><strong>Fabric 26.2:</strong> Für diese Version fehlen derzeit noch veröffentlichte Minecraft-Mappings. Das ZIP enthält die konfigurierte Vorlage, der Gradle-Build kann erst funktionieren, wenn Mojang/Fabric passende Mappings bereitstellen.</div>
+
+        <div class="workspace">
+          <div class="column">
+            <section class="card" aria-labelledby="configTitle">
+              <div class="card-header">
+                <div><div class="card-title" id="configTitle">Client konfigurieren</div><div class="card-subtitle">Name, Stil und Module festlegen</div></div>
+                <div class="step">01 / SETUP</div>
+              </div>
+              <div class="card-body">
+                <div class="field">
+                  <label for="clientName">Client-Name</label>
+                  <input id="clientName" type="text" maxlength="32" value="Lumen Client" autocomplete="off" />
+                </div>
+                <div class="inline-fields">
+                  <div class="field">
+                    <label for="packageName">Java-Paketname</label>
+                    <input id="packageName" type="text" maxlength="80" value="dev.lumen.client" spellcheck="false" />
+                  </div>
+                  <div class="field">
+                    <label for="accentColor">Akzent</label>
+                    <input id="accentColor" type="color" value="#58e0b0" aria-label="Akzentfarbe wählen" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>HUD-Module <span class="subtle" id="featureCount"></span></label>
+                  <div class="feature-grid">
+                    <label class="feature"><input type="checkbox" value="fps" checked /><span><strong>FPS-Zähler</strong><small>Bildrate im Blick</small></span></label>
+                    <label class="feature"><input type="checkbox" value="coordinates" checked /><span><strong>Koordinaten</strong><small>Position als XYZ</small></span></label>
+                    <label class="feature"><input type="checkbox" value="clock" checked /><span><strong>Weltuhr</strong><small>Minecraft-Tageszeit</small></span></label>
+                    <label class="feature"><input type="checkbox" value="keystrokes" checked /><span><strong>Tastenanzeige</strong><small>WASD-Eingaben sehen</small></span></label>
+                    <label class="feature"><input type="checkbox" value="armor" /><span><strong>Rüstungsstatus</strong><small>Aktuelle Rüstungspunkte</small></span></label>
+                  </div>
+                </div>
+                <button class="button primary full" id="buildButton" type="button">↓ &nbsp; Client-Vorlage herunterladen</button>
+                <div class="status" id="buildStatus" role="status" aria-live="polite"></div>
+              </div>
+            </section>
+
+            <section class="card" aria-labelledby="assistantTitle">
+              <div class="card-header">
+                <div class="assistant-head">
+                  <div><div class="card-title" id="assistantTitle">KI-Design-Assistent</div><div class="card-subtitle">Lass dir Ideen für deinen Client geben</div></div>
+                </div>
+                <div class="step">02 / IDEAS</div>
+              </div>
+              <div class="card-body">
+                <div class="field">
+                  <label for="ideaPrompt">Was soll dein Client ausstrahlen?</label>
+                  <textarea id="ideaPrompt" maxlength="2000" placeholder="z. B. Ein ruhiges Natur-Theme mit mintgrünen HUDs und übersichtlichem Startmenü"></textarea>
+                </div>
+                <div class="provider-row">
+                  <div class="field">
+                    <label for="provider">KI-Anbieter</label>
+                    <select id="provider">
+                      <option value="local">Lokal (ohne Modell)</option>
+                      <option value="ollama">Ollama</option>
+                      <option value="openai">OpenAI</option>
+                      <option value="azure-openai">Azure OpenAI</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="model">Modell (optional)</label>
+                    <input id="model" type="text" placeholder="Standard" autocomplete="off" />
+                  </div>
+                </div>
+                <button class="button" id="askButton" type="button">✦ &nbsp; Design-Idee anfragen</button>
+                <div class="assistant-model" id="providerNote">Für echte KI-Antworten Ollama oder einen API-Anbieter konfigurieren.</div>
+                <div class="assistant-response" id="assistantResponse" role="status" aria-live="polite"></div>
+                <button class="button" id="applySuggestionButton" type="button" hidden>Vorschlag übernehmen</button>
+                <div class="status" id="assistantStatus" role="status" aria-live="polite"></div>
+              </div>
+            </section>
+
+            <section class="card" aria-labelledby="gameTitle">
+              <div class="card-header">
+                <div><div class="card-title" id="gameTitle">Browser-Spiel-Generator</div><div class="card-subtitle">Erzeuge ein lokales Mini-Spiel aus deiner Idee</div></div>
+                <div class="step">03 / GAME</div>
+              </div>
+              <div class="card-body">
+                <div class="field">
+                  <label for="gamePrompt">Welche Spielidee willst du ausprobieren?</label>
+                  <textarea id="gamePrompt" maxlength="2000" placeholder="z. B. Ein Retro-Space-Runner mit Sternen, Sammelobjekten und hoher Geschwindigkeit"></textarea>
+                </div>
+                <button class="button" id="generateGameButton" type="button">▶ &nbsp; Spiel erzeugen</button>
+                <div class="status" id="gameStatus" role="status" aria-live="polite"></div>
+                <iframe id="gamePreviewFrame" class="game-preview-frame" title="Generiertes Spiel" sandbox="allow-scripts allow-same-origin"></iframe>
+              </div>
+            </section>
+          </div>
+
+          <section class="card preview-card" aria-labelledby="previewTitle">
+            <div class="card-header">
+              <div><div class="card-title" id="previewTitle">Live-Vorschau</div><div class="card-subtitle">So wirkt dein Startmenü im Spiel</div></div>
+              <div class="step">PREVIEW</div>
+            </div>
+            <div class="preview-shell">
+              <div class="game-screen" id="gameScreen" style="--preview-accent: #58e0b0">
+                <div class="pixel-sun" aria-hidden="true"></div>
+                <div class="horizon" aria-hidden="true"></div>
+                <div class="block-hill" aria-hidden="true"></div>
+                <div class="block-hill right" aria-hidden="true"></div>
+                <div class="hud-sample" id="hudPreview"></div>
+                <div class="menu">
+                  <h2 id="previewName">LUMEN CLIENT</h2>
+                  <p>Ein neues Abenteuer</p>
+                  <div class="menu-button">Welt betreten</div>
+                  <div class="menu-button">Optionen</div>
+                  <div class="menu-button">Client-Einstellungen</div>
+                </div>
+                <div class="keystrokes" id="keyPreview">W<br />A&nbsp; S&nbsp; D</div>
+              </div>
+              <div class="preview-caption"><strong>Startmenü · HUD Overlay</strong><span>Fabric 26.2</span></div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const featureInputs = [...document.querySelectorAll('.feature input')];
+      const nameInput = document.getElementById('clientName');
+      const packageInput = document.getElementById('packageName');
+      const colorInput = document.getElementById('accentColor');
+      const hudPreview = document.getElementById('hudPreview');
+      const keyPreview = document.getElementById('keyPreview');
+      const buildButton = document.getElementById('buildButton');
+      const buildStatus = document.getElementById('buildStatus');
+      const assistantStatus = document.getElementById('assistantStatus');
+      const assistantResponse = document.getElementById('assistantResponse');
+      const providerInput = document.getElementById('provider');
+      const modelInput = document.getElementById('model');
+      const applySuggestionButton = document.getElementById('applySuggestionButton');
+      const gamePromptInput = document.getElementById('gamePrompt');
+      const gameStatus = document.getElementById('gameStatus');
+      const generateGameButton = document.getElementById('generateGameButton');
+      const gamePreviewFrame = document.getElementById('gamePreviewFrame');
+      const storageKey = 'client-forge-config-v1';
+      let latestSuggestion = null;
+      const labels = {
+        fps: 'FPS 144',
+        coordinates: 'XYZ 128 72 -36',
+        clock: 'Weltzeit 10:30',
+        armor: 'Ruestung 16'
+      };
+
+      function currentConfig() {
+        return {
+          clientName: nameInput.value.trim(),
+          packageName: packageInput.value.trim(),
+          accentColor: colorInput.value,
+          features: featureInputs.filter(input => input.checked).map(input => input.value)
+        };
+      }
+
+      function updatePreview() {
+        const name = nameInput.value.trim() || 'Dein Client';
+        document.getElementById('previewName').textContent = name.toLocaleUpperCase('de-DE');
+        document.getElementById('gameScreen').style.setProperty('--preview-accent', colorInput.value);
+        document.getElementById('featureCount').textContent = `· ${currentConfig().features.length} aktiv`;
+        const selected = currentConfig().features;
+        hudPreview.replaceChildren(...selected.filter(feature => feature !== 'keystrokes').map(feature => {
+          const line = document.createElement('div');
+          line.className = 'hud-line';
+          line.textContent = labels[feature];
+          return line;
+        }));
+        keyPreview.hidden = !selected.includes('keystrokes');
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(currentConfig()));
+        } catch (error) {
+          setStatus(buildStatus, `Einstellungen konnten im Browser nicht gespeichert werden: ${error.message}`, true);
+        }
+      }
+
+      function setStatus(element, message, isError = false) {
+        element.textContent = message;
+        element.classList.toggle('error', isError);
+      }
+
+      for (const input of [nameInput, packageInput, colorInput, ...featureInputs]) {
+        input.addEventListener('input', updatePreview);
+        input.addEventListener('change', updatePreview);
+      }
+
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+        if (saved && typeof saved === 'object') {
+          if (typeof saved.clientName === 'string') nameInput.value = saved.clientName;
+          if (typeof saved.packageName === 'string') packageInput.value = saved.packageName;
+          if (typeof saved.accentColor === 'string' && /^#[\da-f]{6}$/i.test(saved.accentColor)) colorInput.value = saved.accentColor;
+          if (Array.isArray(saved.features)) {
+            for (const input of featureInputs) input.checked = saved.features.includes(input.value);
+          }
+        }
+      } catch (error) {
+        setStatus(buildStatus, `Gespeicherte Einstellungen konnten nicht geladen werden: ${error.message}`, true);
+      }
+      updatePreview();
+
+      buildButton.addEventListener('click', async () => {
+        buildButton.disabled = true;
+        setStatus(buildStatus, 'Fabric-Projekt wird zusammengestellt …');
+        try {
+          const response = await fetch('/api/client-template', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(currentConfig())
+          });
+          if (!response.ok) {
+            const problem = await response.json().catch(() => ({}));
+            throw new Error(problem.error || `Export fehlgeschlagen (${response.status}).`);
+          }
+          const archive = await response.blob();
+          const url = URL.createObjectURL(archive);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${currentConfig().clientName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.zip`;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          setStatus(buildStatus, 'ZIP erstellt. Der Minecraft-26.2-Build wartet noch auf veröffentlichte Mappings; Java 25 und Gradle 9.9+ werden benötigt.');
+        } catch (error) {
+          setStatus(buildStatus, error.message || 'Der Export ist fehlgeschlagen.', true);
+        } finally {
+          buildButton.disabled = false;
+        }
+      });
+
+      document.getElementById('askButton').addEventListener('click', async event => {
+        const prompt = document.getElementById('ideaPrompt').value.trim();
+        if (!prompt) {
+          setStatus(assistantStatus, 'Beschreibe zuerst kurz deine Design-Idee.', true);
+          return;
+        }
+
+        const button = event.currentTarget;
+        button.disabled = true;
+        latestSuggestion = null;
+        applySuggestionButton.hidden = true;
+        assistantResponse.classList.remove('visible');
+        setStatus(assistantStatus, 'Die KI denkt nach …');
+        try {
+          const response = await fetch('/api/design-assistant', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt,
+              ...currentConfig(),
+              provider: providerInput.value,
+              model: modelInput.value.trim() || null
+            })
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.detail || result.error || `Anfrage fehlgeschlagen (${response.status}).`);
+          assistantResponse.textContent = result.reply;
+          assistantResponse.classList.add('visible');
+          latestSuggestion = result;
+          applySuggestionButton.hidden = false;
+          setStatus(assistantStatus, '');
+        } catch (error) {
+          setStatus(assistantStatus, error.message || 'Die Anfrage ist fehlgeschlagen.', true);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      applySuggestionButton.addEventListener('click', () => {
+        if (!latestSuggestion) return;
+
+        if (typeof latestSuggestion.clientName === 'string') nameInput.value = latestSuggestion.clientName;
+        if (typeof latestSuggestion.accentColor === 'string' && /^#[\da-f]{6}$/i.test(latestSuggestion.accentColor)) {
+          colorInput.value = latestSuggestion.accentColor;
+        }
+        if (Array.isArray(latestSuggestion.features)) {
+          const selected = new Set(latestSuggestion.features);
+          for (const input of featureInputs) input.checked = selected.has(input.value);
+        }
+
+        updatePreview();
+        setStatus(assistantStatus, 'Der Vorschlag wurde übernommen. Du kannst ihn weiter anpassen oder als Vorlage exportieren.');
+      });
+
+      generateGameButton.addEventListener('click', async () => {
+        const prompt = gamePromptInput.value.trim();
+        if (!prompt) {
+          setStatus(gameStatus, 'Beschreibe zuerst kurz deine Spielidee.', true);
+          return;
+        }
+
+        generateGameButton.disabled = true;
+        setStatus(gameStatus, 'Spiel wird vorbereitet …');
+        try {
+          const response = await fetch('/api/game', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt,
+              provider: providerInput.value,
+              model: modelInput.value.trim() || null
+            })
+          });
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.detail || result.error || `Spiel konnte nicht erzeugt werden (${response.status}).`);
+          }
+
+          const html = result.html;
+          const blob = new Blob([html], { type: 'text/html; charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          gamePreviewFrame.src = url;
+          setStatus(gameStatus, 'Mini-Spiel geladen. Du kannst es direkt ausprobieren.');
+          setTimeout(() => URL.revokeObjectURL(url), 10000);
+        } catch (error) {
+          setStatus(gameStatus, error.message || 'Das Spiel konnte nicht erzeugt werden.', true);
+        } finally {
+          generateGameButton.disabled = false;
+        }
+      });
+
+      fetch('/api/config')
+        .then(response => response.ok ? response.json() : null)
+        .then(config => {
+          if (!config) return;
+          if (['local', 'ollama', 'openai', 'azure-openai'].includes(config.provider)) {
+            providerInput.value = config.provider;
+          }
+          if (config.model) modelInput.value = config.model;
+        })
+        .catch(error => {
+          document.getElementById('providerNote').textContent = `KI-Konfiguration konnte nicht geladen werden: ${error.message}. Der ZIP-Export bleibt verfügbar.`;
+        });
+    </script>
+  </body>
+</html>

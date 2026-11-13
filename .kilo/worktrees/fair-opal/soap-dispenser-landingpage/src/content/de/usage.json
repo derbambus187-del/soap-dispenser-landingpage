@@ -1,0 +1,39 @@
+{
+  "steps": [
+    {
+      "number": 1,
+      "title": "Auspacken & Laden",
+      "desc": "Entnehmen Sie den Spender der Verpackung. Laden Sie ihn vor der ersten Nutzung vollständig auf (USB-C, ca. 3 Stunden). Die LED leuchtet grün bei voller Ladung.",
+      "image": "/images/usage-1.svg"
+    },
+    {
+      "number": 2,
+      "title": "Kammern befüllen",
+      "desc": "Öffnen Sie den Spender (Drehverschluss an der Oberseite). Füllen Sie die drei Kammern mit Ihren Wunschprodukten: Seife, Rasierschaum, Zahnpasta. Nutzen Sie die mitgelieferten Nachfüllflaschen für sauberes Umfüllen.",
+      "image": "/images/usage-2.svg"
+    },
+    {
+      "number": 3,
+      "title": "Montage wählen",
+      "desc": "<strong>Variante A (Kleben):</strong> Reinigen Sie die Wandfläche (Fliesen, Glas, Spiegel) mit Alkohol. Ziehen Sie die Schutzfolie der 3M-Pads ab und drücken Sie den Spender 30 Sek. fest an.<br><br><strong>Variante B (Schrauben):</strong> Markieren Sie die Bohrlöcher an der Schablone. Bohren Sie 6 mm Löcher, setzen Sie Dübel ein, schrauben Sie die Halterung fest.",
+      "image": "/images/usage-3.svg"
+    },
+    {
+      "number": 4,
+      "title": "Dosierung einstellen",
+      "desc": "Drücken Sie die Modus-Taste an der Seite, um zwischen den drei Kammern zu wechseln (LED zeigt aktiven Modus). Halten Sie die Taste 3 Sek., um die Dosierstufe zu ändern (1–3 Blinksignale = Stufe 1–3).",
+      "image": "/images/usage-4.svg"
+    },
+    {
+      "number": 5,
+      "title": "Los geht's!",
+      "desc": "Halten Sie Ihre Hand, Zahnbürste oder Rasierpinsel unter den gewünschten Auslass. Der Sensor erkennt die Nähe und gibt die eingestellte Menge aus. Nachfüllen: Wenn die LED rot blinkt, einfach Nachfüllpack öffnen und Kammer befüllen."
+    }
+  ],
+  "tips": [
+    { "icon": "lightbulb", "title": "Tipp 1", "desc": "Für Rasierschaum: Vor der ersten Nutzung 2–3 mal pumpen, bis Schaum kommt." },
+    { "icon": "lightbulb", "title": "Tipp 2", "desc": "Zahnpasta nicht zu dickflüssig wählen (Standard-Tuben funktionieren perfekt)." },
+    { "icon": "lightbulb", "title": "Tipp 3", "desc": "Reinigen Sie die Auslässe wöchentlich mit warmem Wasser gegen Kalk." },
+    { "icon": "lightbulb", "title": "Tipp 4", "desc": "Bei längerer Nichtnutzung: Spender ausschalten (3 Sek. Modus-Taste)." }
+  ]
+}

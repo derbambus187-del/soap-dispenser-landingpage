@@ -1,0 +1,72 @@
+---
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Button from '@/components/ui/Button.astro';
+
+interface Props {
+  locale: 'de' | 'en';
+}
+
+const { locale } = Astro.props;
+---
+
+<Section id="demo" class="bg-neutral-900 dark:bg-neutral-950 text-white" padding="lg">
+  <div class="container-page">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div class="animate-in">
+        <h2 class="font-display text-display-md font-bold mb-4">
+          {locale === 'de' ? 'Sehen Sie den Unterschied.' : 'See the difference.'}
+        </h2>
+        <p class="text-body-lg text-neutral-400 mb-8 max-w-lg">
+          {locale === 'de'
+            ? 'Unser kurzes Video zeigt, wie einfach die Bedienung und Montage ist.'
+            : 'Our short video shows how easy operation and installation are.'}
+        </p>
+        <ul class="space-y-4 text-neutral-300" role="list">
+          <li class="flex items-start gap-3 animate-in">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-brand-500/20 flex items-center justify-center mt-0.5">
+              <Icon name="check" size={14} class="text-brand-400" aria-hidden="true" />
+            </span>
+            <span>{locale === 'de' ? 'Einfache Wandmontage in 5 Minuten' : 'Easy wall mounting in 5 minutes'}</span>
+          </li>
+          <li class="flex items-start gap-3 animate-in stagger-1">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-brand-500/20 flex items-center justify-center mt-0.5">
+              <Icon name="check" size={14} class="text-brand-400" aria-hidden="true" />
+            </span>
+            <span>{locale === 'de' ? 'Berührungslose Ausgabe per Sensor' : 'Touchless dispensing via sensor'}</span>
+          </li>
+          <li class="flex items-start gap-3 animate-in stagger-2">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-brand-500/20 flex items-center justify-center mt-0.5">
+              <Icon name="check" size={14} class="text-brand-400" aria-hidden="true" />
+            </span>
+            <span>{locale === 'de' ? 'Einstellbare Dosiermenge pro Modus' : 'Adjustable dose amount per mode'}</span>
+          </li>
+          <li class="flex items-start gap-3 animate-in stagger-3">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-brand-500/20 flex items-center justify-center mt-0.5">
+              <Icon name="check" size={14} class="text-brand-400" aria-hidden="true" />
+            </span>
+            <span>{locale === 'de' ? 'Lange Akkulaufzeit (6 Monate)' : 'Long battery life (6 months)'}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Video placeholder -->
+      <div class="relative aspect-video rounded-2xl overflow-hidden bg-neutral-800 group animate-in stagger-4">
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-600/20 to-brand-900/20 flex items-center justify-center">
+          <Button
+            variant="ghost"
+            class="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm text-white shadow-xl hover:bg-white/20 hover:scale-105"
+            aria-label={locale === 'de' ? 'Video abspielen' : 'Play video'}
+          >
+            <Icon name="play" size={28} class="ml-0.5" aria-hidden="true" />
+          </Button>
+        </div>
+        <div class="absolute bottom-6 left-6 right-6">
+          <p class="text-sm text-neutral-400 text-center">
+            {locale === 'de' ? 'Produktvideo ansehen (1:24 Min.)' : 'Watch product video (1:24 min)'}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Section>

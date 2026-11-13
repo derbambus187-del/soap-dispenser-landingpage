@@ -1,0 +1,454 @@
+---
+import Layout from '@/components/layout/Layout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/home/Hero.astro';
+import ValueProp from '@/components/home/ValueProp.astro';
+import TechSpecs from '@/components/home/TechSpecs.astro';
+import DemoVideo from '@/components/home/DemoVideo.astro';
+import TrustBar from '@/components/home/TrustBar.astro';
+import ModeSelector from '@/components/product/ModeSelector.astro';
+import SpecsTable from '@/components/product/SpecsTable.astro';
+import ScopeOfDelivery from '@/components/product/ScopeOfDelivery.astro';
+import Refills from '@/components/product/Refills.astro';
+import DownloadSection from '@/components/home/DownloadSection.astro';
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Button from '@/components/ui/Button.astro';
+import homeData from '@/content/en/home.json';
+import productData from '@/content/en/product.json';
+import featuresData from '@/content/en/features.json';
+import usageData from '@/content/en/usage.json';
+import faqData from '@/content/en/faq.json';
+import contactData from '@/content/en/contact.json';
+
+const locale = 'en';
+const currentPath = '/en/';
+const { hero, valueProps, techSpecs, trust } = homeData;
+const { modes, specs, scope, refills } = productData;
+const { features } = featuresData;
+const { steps, tips } = usageData;
+const { faq } = faqData;
+const { title: contactTitle, subtitle, contact, cta, b2b, form } = contactData;
+const productImage = '/images/product-front.svg';
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "3-in-1 Soap Dispenser",
+    "description": "One dispenser for soap, shaving foam and toothpaste",
+    "brand": { "@type": "Brand", "name": "3-in-1" },
+    "offers": { "@type": "Offer", "price": "149.00", "priceCurrency": "EUR", "availability": "https://schema.org/InStock" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faq.map((item) => ({
+      "@type": "Question",
+      "name": item.question,
+      "acceptedAnswer": { "@type": "Answer", "text": item.answer }
+    }))
+  }
+];
+---
+
+<BaseLayout
+  title="3-in-1 Soap Dispenser – One Dispenser. Three Options."
+  description="Soap, shaving foam & toothpaste in one device. Hygienic, space-saving, smart. Discover now!"
+  locale={locale}
+  jsonLd={jsonLd}
+>
+  <Layout locale={locale} currentPath={currentPath}>
+    <!-- Hero -->
+    <Hero locale={locale} data={{ hero, valueProps, techSpecs, productImage }} />
+
+    <!-- Value Props -->
+    <ValueProp locale={locale} data={{ valueProps }} />
+
+    <!-- Tech Specs -->
+    <TechSpecs locale={locale} data={{ techSpecs }} />
+
+    <!-- Features -->
+    <Section id="features" class="bg-neutral-50 dark:bg-neutral-900/50" padding="lg">
+      <div class="container-page">
+        <div class="text-center max-w-2xl mx-auto mb-12 lg:mb-16 animate-in">
+          <h2 class="font-display text-display-md font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+            Features that convince.
+          </h2>
+          <p class="text-body-lg text-neutral-600 dark:text-neutral-400">
+            Thought through to the last detail – for your best bathroom experience.
+          </p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {features.map((feature, index) => (
+            <article class="group card p-8 animate-in stagger-{index + 1}">
+              <div class="w-14 h-14 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300">
+                <Icon name={feature.icon} size={28} class="text-brand-600 dark:text-brand-400" aria-hidden="true" />
+              </div>
+              <h3 class="font-display text-heading-lg font-semibold text-neutral-900 dark:text-neutral-50 mb-3">
+                {feature.title}
+              </h3>
+              <p class="text-body text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                {feature.desc}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </Section>
+
+    <!-- Modes -->
+    <Section id="modes" class="bg-white dark:bg-neutral-950" padding="lg">
+      <div class="container-page">
+        <div class="text-center max-w-2xl mx-auto mb-12 lg:mb-16 animate-in">
+          <h2 class="font-display text-display-md font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+            Three modes. One touch.
+          </h2>
+          <p class="text-body-lg text-neutral-600 dark:text-neutral-400">
+            Switch between soap, shaving foam, and toothpaste at the touch of a button. Each mode is individually adjustable.
+          </p>
+        </div>
+        <div class="max-w-4xl mx-auto">
+          <ModeSelector modes={modes} defaultMode="soap" locale={locale} />
+        </div>
+      </div>
+    </Section>
+
+    <!-- Demo Video -->
+    <DemoVideo locale={locale} />
+
+    <!-- Usage -->
+    <Section id="usage" class="bg-brand-50 dark:bg-neutral-950" padding="lg">
+      <div class="container-page">
+        <div class="text-center max-w-2xl mx-auto mb-12 lg:mb-16 animate-in">
+          <h2 class="font-display text-display-md font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+            Ready in 5 minutes.
+          </h2>
+          <p class="text-body-lg text-neutral-600 dark:text-neutral-400">
+            Setup is this easy – no handyman needed.
+          </p>
+        </div>
+        <div class="max-w-4xl mx-auto space-y-12 lg:space-y-16">
+          {steps.map((step) => (
+            <div class="flex gap-6 lg:gap-8 animate-in" key={step.number}>
+              <div class="flex-shrink-0 w-14 h-14 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center font-display text-2xl font-bold text-brand-600 dark:text-brand-400">
+                {step.number}
+              </div>
+              <div class="flex-1 pt-1">
+                <h3 class="font-display text-display-sm font-bold text-neutral-900 dark:text-neutral-50 mb-3">
+                  {step.title}
+                </h3>
+                <div class="prose prose-neutral dark:prose-invert max-w-none" set:html={step.desc} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <!-- Tips -->
+        <div class="mt-16">
+          <h3 class="font-display text-display-sm font-bold text-neutral-900 dark:text-neutral-50 text-center mb-10 animate-in">
+            Tips & Tricks
+          </h3>
+          <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {tips.map((tip, index) => (
+              <article class="card p-6 animate-in stagger-{index + 1}">
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <Icon name={tip.icon} size={20} class="text-amber-600 dark:text-amber-400" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-neutral-900 dark:text-white mb-1">{tip.title}</h4>
+                    <p class="text-body text-neutral-600 dark:text-neutral-400">{tip.desc}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+
+    <!-- FAQ -->
+    <Section id="faq" class="bg-neutral-50 dark:bg-neutral-900/50" padding="lg">
+      <div class="container-page max-w-3xl mx-auto">
+        <div class="text-center mb-12 lg:mb-16 animate-in">
+          <h2 class="font-display text-display-md font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+            Frequently Asked Questions.
+          </h2>
+          <p class="text-body-lg text-neutral-600 dark:text-neutral-400">
+            Find answers to the most common questions here. Not listed? Contact us!
+          </p>
+        </div>
+        <div class="space-y-4" id="faq-accordion">
+          {faq.map((item, index) => (
+            <details class="group card overflow-hidden animate-in stagger-{index + 1}">
+              <summary class="flex items-center justify-between p-6 cursor-pointer list-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+                <h3 class="font-semibold text-body-lg text-neutral-900 dark:text-neutral-50 pr-8">
+                  {item.question}
+                </h3>
+                <Icon name="chevron-down" size={20} class="text-neutral-400 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
+              </summary>
+              <div class="px-6 pb-6 text-body text-neutral-600 dark:text-neutral-400 leading-relaxed" set:html={item.answer} />
+            </details>
+          ))}
+        </div>
+      </div>
+    </Section>
+
+    <!-- Trust Bar -->
+    <TrustBar locale={locale} data={{ trust }} />
+
+    <!-- Contact -->
+    <Section id="contact" class="bg-white dark:bg-neutral-950" padding="lg">
+      <div class="container-page">
+        <div class="text-center max-w-2xl mx-auto mb-12 lg:mb-16 animate-in">
+          <h2 class="font-display text-display-md font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+            {contactTitle}
+          </h2>
+          <p class="text-body-lg text-neutral-600 dark:text-neutral-400">
+            {subtitle}
+          </p>
+        </div>
+        <div class="grid lg:grid-cols-3 gap-8 lg:gap-12 max-w-6xl mx-auto">
+          <!-- Contact Info -->
+          <div class="lg:col-span-1 animate-in">
+            <div class="card-elevated p-8 h-full">
+              <h3 class="font-display text-heading-lg font-bold text-neutral-900 dark:text-neutral-50 mb-6">
+                Contact Details
+              </h3>
+              <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                    <Icon name="mail" size={24} class="text-brand-600 dark:text-brand-400" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p class="text-body-sm text-neutral-500 dark:text-neutral-400">Email</p>
+                    <a href={`mailto:${contact.email}`} class="font-medium text-neutral-900 dark:text-white hover:text-brand-600 transition-colors link-underline">{contact.email}</a>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                    <Icon name="phone" size={24} class="text-brand-600 dark:text-brand-400" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p class="text-body-sm text-neutral-500 dark:text-neutral-400">Phone</p>
+                    <a href={`tel:${contact.phone}`} class="font-medium text-neutral-900 dark:text-white hover:text-brand-600 transition-colors link-underline">{contact.phone}</a>
+                    <p class="text-body-sm text-neutral-500 dark:text-neutral-400 mt-1">{contact.hours}</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                    <Icon name="map-pin" size={24} class="text-brand-600 dark:text-brand-400" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p class="text-body-sm text-neutral-500 dark:text-neutral-400">Address</p>
+                    <address class="font-medium text-neutral-900 dark:text-white not-italic">{contact.address}</address>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA Card -->
+          <div class="lg:col-span-1 animate-in stagger-1">
+            <div class="h-full bg-brand-600 text-white rounded-2xl p-8 flex flex-col justify-between">
+              <div>
+                <h3 class="font-display text-heading-lg font-bold mb-4">
+                  Order Directly
+                </h3>
+                <p class="text-brand-100 mb-6">
+                  Get your 3-in-1 dispenser now in our online shop. Free shipping over €50.
+                </p>
+              </div>
+              <a
+                href={cta.href}
+                class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-lg font-semibold bg-white text-brand-600 rounded-lg hover:bg-brand-50 transition-colors"
+                target={cta.external ? '_blank' : undefined}
+                rel={cta.external ? 'noopener noreferrer' : undefined}
+              >
+                {cta.label}
+              </a>
+            </div>
+          </div>
+
+          <!-- B2B Card -->
+          <div class="lg:col-span-1 animate-in stagger-2">
+            <div class="h-full border-2 border-brand-200 dark:border-brand-800 rounded-2xl p-8 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                    <Icon name="building-2" size={20} class="text-brand-600 dark:text-brand-400" aria-hidden="true" />
+                  </div>
+                  <h3 class="font-display text-heading-lg font-bold text-neutral-900 dark:text-white">
+                    {b2b.title}
+                  </h3>
+                </div>
+                <p class="text-body text-neutral-600 dark:text-neutral-400 mb-6">{b2b.desc}</p>
+              </div>
+              <a
+                href={b2b.ctaHref}
+                class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-lg font-semibold bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
+              >
+                {b2b.ctaLabel}
+              </a>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+          <div class="lg:col-span-3 animate-in stagger-3">
+            <div class="card-elevated p-8">
+              <h3 class="font-display text-display-sm font-bold text-neutral-900 dark:text-neutral-50 mb-6">
+                {form.title}
+              </h3>
+              <form class="grid md:grid-cols-2 gap-6" action="https://api.seifenspender.example/contact" method="POST" id="contact-form">
+                {form.fields.map((field) => (
+                  <div class={field.name === 'message' ? 'md:col-span-2' : ''}>
+                    <label for={field.name} class="block text-body-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                      {field.label} {field.required && <span class="text-red-500" aria-hidden="true">*</span>}
+                    </label>
+                    {field.type === 'textarea' ? (
+                      <textarea
+                        id={field.name}
+                        name={field.name}
+                        required={field.required}
+                        rows={5}
+                        class="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500/30 focus:border-transparent transition-shadow placeholder:text-neutral-400"
+                        placeholder={field.label}
+                      ></textarea>
+                    ) : field.type === 'select' ? (
+                      <select
+                        id={field.name}
+                        name={field.name}
+                        required={field.required}
+                        class="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500/30 focus:border-transparent transition-shadow"
+                      >
+                        {field.options.map((opt) => (
+                          <option value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={field.type}
+                        id={field.name}
+                        name={field.name}
+                        required={field.required}
+                        class="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500/30 focus:border-transparent transition-shadow placeholder:text-neutral-400"
+                        placeholder={field.label}
+                      />
+                    )}
+                  </div>
+                ))}
+                <div class="md:col-span-2">
+                  <Button type="submit" variant="primary" size="lg" class="w-full md:w-auto">
+                    {form.submitLabel}
+                  </Button>
+                </div>
+              </form>
+              <p class="text-body-sm text-neutral-500 dark:text-neutral-400 mt-4 text-center hidden" id="form-success">
+                {form.successMessage}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Section>
+  </Layout>
+</BaseLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.querySelector('[data-mobile-menu]');
+    const panel = document.querySelector('[data-mobile-menu-panel]');
+    if (btn && panel) {
+      btn.addEventListener('click', () => {
+        const isOpen = panel.classList.contains('flex');
+        if (isOpen) {
+          panel.classList.add('hidden');
+          panel.classList.remove('flex');
+          btn.setAttribute('aria-expanded', 'false');
+        } else {
+          panel.classList.remove('hidden');
+          panel.classList.add('flex');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+      panel.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') {
+          panel.classList.add('hidden');
+          panel.classList.remove('flex');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    const selector = document.querySelector('.mode-selector');
+    if (selector) {
+      const tabs = selector.querySelectorAll('[data-tab]');
+      const panels = selector.querySelectorAll('[data-panel]');
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const mode = tab.getAttribute('data-tab');
+          tabs.forEach((t) => {
+            const isActive = t.getAttribute('data-tab') === mode;
+            t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            if (isActive) {
+              t.classList.add('border-brand-600', 'text-brand-600', 'bg-brand-50', 'dark:bg-brand-900/20', 'shadow-sm');
+              t.classList.remove('border-neutral-200', 'dark:border-neutral-700', 'text-neutral-600', 'dark:text-neutral-400');
+            } else {
+              t.classList.remove('border-brand-600', 'text-brand-600', 'bg-brand-50', 'dark:bg-brand-900/20', 'shadow-sm');
+              t.classList.add('border-neutral-200', 'dark:border-neutral-700', 'text-neutral-600', 'dark:text-neutral-400');
+            }
+          });
+
+          panels.forEach((panel) => {
+            if (panel.getAttribute('data-panel') === mode) {
+              panel.style.display = '';
+              requestAnimationFrame(() => {
+                panel.classList.remove('opacity-0', 'invisible', 'pointer-events-none', 'absolute', 'inset-0');
+                panel.classList.add('opacity-100', 'visible');
+              });
+            } else {
+              panel.classList.add('opacity-0', 'invisible', 'pointer-events-none');
+              panel.classList.remove('opacity-100', 'visible');
+              setTimeout(() => {
+                if (panel.classList.contains('opacity-0')) {
+                  panel.style.display = 'none';
+                }
+              }, 300);
+            }
+          });
+        });
+      });
+    }
+
+    const form = document.getElementById('contact-form');
+    const successMsg = document.getElementById('form-success');
+    if (form && successMsg) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        try {
+          await fetch(form.action, { method: 'POST', body: formData });
+          form.classList.add('hidden');
+          successMsg.classList.remove('hidden');
+        } catch {
+          alert('Error sending. Please try again later.');
+        }
+      });
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        const target = document.querySelector(targetId);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.pushState(null, '', targetId);
+        }
+      });
+    });
+  });
+</script>

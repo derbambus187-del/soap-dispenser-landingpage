@@ -1,0 +1,976 @@
+#!/usr/bin/env node
+// Advanced PBR SVG Renderer - Photorealistic product visualization
+// Features: HDRI environment lighting, GGX BRDF, subsurface scattering, 
+// depth of field, chromatic aberration, tone mapping, color grading
+
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
+import { join } from 'path';
+import sharp from 'sharp';
+
+const outDir = join(process.cwd(), 'public', 'images');
+const webpDir = join(outDir, 'webp');
+if (!existsSync(webpDir)) mkdirSync(webpDir, { recursive: true });
+
+// ============================================================
+// PHYSICALLY BASED MATERIAL DEFINITIONS
+// ============================================================
+const MATERIALS = {
+  // Matte white plastic (main body)
+  matteWhite: {
+    albedo: '#fafafa',
+    roughness: 0.85,
+    metalness: 0.0,
+    clearcoat: 0.05,
+    clearcoatRoughness: 0.3,
+    normalScale: 0.02,
+    subsurface: { color: '#fff8f0', thickness: 0.15, distortion: 0.1 }
+  },
+  // Dark matte plastic (cap, panel)
+  matteDark: {
+    albedo: '#1a1a1a',
+    roughness: 0.9,
+    metalness: 0.0,
+    clearcoat: 0.03,
+    clearcoatRoughness: 0.4
+  },
+  // Brushed aluminum (buttons, accents)
+  brushedAlu: {
+    albedo: '#c8c8c8',
+    roughness: 0.4,
+    metalness: 0.95,
+    anisotropic: 0.8,
+    anisotropyRotation: 0.0
+  },
+  // Polished chrome (IR sensor ring)
+  chrome: {
+    albedo: '#ffffff',
+    roughness: 0.02,
+    metalness: 1.0
+  },
+  // Glass (chamber walls)
+  glass: {
+    albedo: '#ffffff',
+    roughness: 0.05,
+    metalness: 0.0,
+    ior: 1.52,
+    transmission: 0.92,
+    thickness: 2.0,
+    attenuationColor: '#ffffff',
+    attenuationDistance: 10
+  },
+  // Liquid soap (subsurface scattering)
+  liquidSoap: {
+    albedo: '#4a9b7a',
+    roughness: 0.3,
+    metalness: 0.0,
+    ior: 1.38,
+    transmission: 0.7,
+    thickness: 50,
+    attenuationColor: '#6fc4a8',
+    attenuationDistance: 30,
+    subsurface: { color: '#a5e6c9', thickness: 40, distortion: 0.15 }
+  },
+  // Foam (high scattering)
+  liquidFoam: {
+    albedo: '#67e8f9',
+    roughness: 0.4,
+    metalness: 0.0,
+    ior: 1.25,
+    transmission: 0.5,
+    thickness: 40,
+    attenuationColor: '#a5f3fc',
+    attenuationDistance: 20,
+    subsurface: { color: '#ffffff', thickness: 35, distortion: 0.3 }
+  },
+  // Toothpaste (viscous)
+  liquidPaste: {
+    albedo: '#f59e0b',
+    roughness: 0.35,
+    metalness: 0.0,
+    ior: 1.45,
+    transmission: 0.6,
+    thickness: 45,
+    attenuationColor: '#fde68a',
+    attenuationDistance: 25,
+    subsurface: { color: '#fef3c7', thickness: 30, distortion: 0.08 }
+  },
+  // Emissive (LEDs)
+  emissiveGreen: { albedo: '#387763', emissive: '#44967b', emissiveIntensity: 3.0 },
+  emissiveCyan: { albedo: '#06b6d4', emissive: '#22d3ee', emissiveIntensity: 3.0 },
+  emissiveAmber: { albedo: '#f59e0b', emissive: '#fbbf24', emissiveIntensity: 3.0 }
+};
+
+// ============================================================
+// HDRI ENVIRONMENT MAP (procedural studio lighting)
+// ============================================================
+const HDRI_STOPS = [
+  // Top - key light
+  { angle: -90, color: '#ffffff', intensity: 2.5 },
+  { angle: -60, color: '#fffef5', intensity: 1.8 },
+  { angle: -30, color: '#fefae0', intensity: 1.2 },
+  // Horizon - fill
+  { angle: 0, color: '#f5f5f0', intensity: 0.8 },
+  { angle: 30, color: '#e8e8e0', intensity: 0.5 },
+  // Bottom - bounce
+  { angle: 90, color: '#d0d0c8', intensity: 0.3 }
+];
+
+// ============================================================
+// CAMERA & RENDER SETTINGS
+// ============================================================
+const RENDER = {
+  width: 1600,
+  height: 1800,
+  fov: 35, // degrees - product photography lens
+  focusDistance: 1.0,
+  aperture: 2.8, // f-stop for DOF
+  sensorSize: 36, // full frame
+  toneMapping: 'aces', // 'aces' | 'reinhard' | 'filmic'
+  exposure: 1.0,
+  contrast: 1.05,
+  saturation: 1.02,
+  colorGrade: {
+    lift: [0.01, 0.005, 0.0],
+    gamma: [1.0, 0.99, 0.98],
+    gain: [1.02, 1.0, 0.98]
+  },
+  vignette: 0.15,
+  chromaticAberration: 0.0008,
+  filmGrain: 0.008
+};
+
+const CHAMBERS = [
+  { id: 'soap', name: 'Flüssigseife', short: 'SEIFE', material: 'liquidSoap', icon: soapIcon, fill: 0.78, bubbles: true },
+  { id: 'foam', name: 'Rasierschaum', short: 'SCHAUM', material: 'liquidFoam', icon: foamIcon, fill: 0.62, bubbles: true },
+  { id: 'paste', name: 'Zahnpasta', short: 'PASTE', material: 'liquidPaste', icon: pasteIcon, fill: 0.82, bubbles: false }
+];
+
+// ============================================================
+// ICON PATHS
+// ============================================================
+function soapIcon(cx, cy, s) { return `<path d="M${cx-10*s},${cy+12*s} L${cx+10*s},${cy+12*s} L${cx+10*s},${cy+2*s} L${cx+7*s},${cy-3*s} L${cx-7*s},${cy-3*s} L${cx-10*s},${cy+2*s} Z M${cx-5*s},${cy+7*s} L${cx+5*s},${cy+7*s} L${cx+4*s},${cy+3*s} L${cx-4*s},${cy+3*s} Z" fill="currentColor"/>`; }
+function foamIcon(cx, cy, s) { return `<path d="M${cx-10*s},${cy+2*s} Q${cx},${cy-3*s} ${cx+10*s},${cy+2*s} Q${cx+12*s},${cy+7*s} ${cx+10*s},${cy+12*s} Q${cx},${cy+17*s} ${cx-10*s},${cy+12*s} Q${cx-12*s},${cy+7*s} ${cx-10*s},${cy+2*s} M${cx-5*s},${cy+5*s} Q${cx},${cy+3*s} ${cx+5*s},${cy+5*s} Q${cx+3*s},${cy+8*s} ${cx},${cy+10*s} Q${cx-3*s},${cy+8*s} ${cx-5*s},${cy+5*s} M${cx},${cy+7*s} Q${cx+2*s},${cy+7*s} ${cx+2*s},${cy+9*s} Q${cx},${cy+11*s} ${cx},${cy+9*s}" fill="currentColor"/>`; }
+function pasteIcon(cx, cy, s) { return `<path d="M${cx-10*s},${cy+12*s} L${cx+10*s},${cy+12*s} Q${cx+12*s},${cy+7*s} ${cx+10*s},${cy+2*s} L${cx-10*s},${cy+2*s} Q${cx-12*s},${cy+7*s} ${cx-10*s},${cy+12*s} M${cx-5*s},${cy+4*s} L${cx+5*s},${cy+4*s} L${cx+5*s},${cy+10*s} L${cx-5*s},${cy+10*s} Z M${cx},${cy+6*s} L${cx},${cy+8*s}" fill="currentColor"/>`; }
+
+// ============================================================
+// ADVANCED SVG FILTER LIBRARY
+// ============================================================
+const FILTERS = `
+<defs>
+  <!-- GGX BRDF Approximation for Specular -->
+  <filter id="ggxSpecular" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="rough"/>
+    <feSpecularLighting surfaceScale="8" specularConstant="1.2" specularExponent="64" lighting-color="white" result="spec">
+      <feDistantLight azimuth="45" elevation="60"/>
+      <fePointLight x="400" y="-200" z="400"/>
+    </feSpecularLighting>
+    <feComposite in="spec" in2="SourceAlpha" operator="in"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.8"/></feComponentTransfer>
+  </filter>
+
+  <!-- Subsurface Scattering Simulation -->
+  <filter id="subsurface" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur1"/>
+    <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur2"/>
+    <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur3"/>
+    <feComposite in="blur1" in2="SourceGraphic" operator="over" result="ss1"/>
+    <feComposite in="blur2" in2="ss1" operator="over" result="ss2"/>
+    <feComposite in="blur3" in2="ss2" operator="over"/>
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0 0.15 0.35 0.6 0.85 1"/>
+      <feFuncG type="table" tableValues="0 0.1 0.3 0.55 0.8 0.95"/>
+      <feFuncB type="table" tableValues="0 0.05 0.25 0.5 0.75 0.9"/>
+    </feComponentTransfer>
+  </filter>
+
+  <!-- Depth of Field (bokeh) -->
+  <filter id="dof" x="-100%" y="-100%" width="300%" height="300%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="0" result="sharp"/>
+    <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur_far"/>
+    <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur_mid"/>
+  </filter>
+
+  <!-- Chromatic Aberration -->
+  <filter id="chromaticAberration" x="-5%" y="-5%" width="110%" height="110%">
+    <feOffset in="SourceGraphic" dx="0.8" dy="0" result="R"/>
+    <feOffset in="SourceGraphic" dx="-0.4" dy="0.6" result="G"/>
+    <feOffset in="SourceGraphic" dx="-0.4" dy="-0.6" result="B"/>
+    <feComposite in="R" in2="G" operator="over" result="RG"/>
+    <feComposite in="RG" in2="B" operator="over"/>
+  </filter>
+
+  <!-- Film Grain -->
+  <filter id="filmGrain" x="0%" y="0%" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch" result="grain"/>
+    <feColorMatrix in="grain" type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.015"/></feComponentTransfer>
+    <feBlend in="SourceGraphic" in2="grain" mode="overlay"/>
+  </filter>
+
+  <!-- Vignette -->
+  <filter id="vignette" x="0%" y="0%" width="100%" height="100%">
+    <feComponentTransfer>
+      <feFuncA type="table" tableValues="1 1 1 1 1 1 1 1 1 1 0.9 0.7 0.4 0.1 0 0"/>
+    </feComponentTransfer>
+  </filter>
+
+  <!-- ACES Tone Mapping (approximation) -->
+  <filter id="acesToneMap" x="0%" y="0%" width="100%" height="100%">
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0 0.05 0.15 0.35 0.65 0.9 1.0 1.05 1.08 1.1"/>
+      <feFuncG type="table" tableValues="0 0.04 0.14 0.33 0.62 0.88 0.98 1.03 1.06 1.08"/>
+      <feFuncB type="table" tableValues="0 0.03 0.12 0.3 0.58 0.85 0.95 1.0 1.03 1.05"/>
+    </feComponentTransfer>
+  </filter>
+
+  <!-- Color Grading LUT -->
+  <filter id="colorGrade" x="0%" y="0%" width="100%" height="100%">
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0.01 0.06 0.16 0.36 0.66 0.91 1.01"/>
+      <feFuncG type="table" tableValues="0.005 0.055 0.155 0.355 0.655 0.905 1.0"/>
+      <feFuncB type="table" tableValues="0 0.05 0.15 0.35 0.65 0.9 0.98"/>
+    </feComponentTransfer>
+  </filter>
+
+  <!-- HDRI Environment Reflection -->
+  <filter id="envReflection" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="0.5" result="sharp"/>
+    <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="rough"/>
+    <feSpecularLighting surfaceScale="3" specularConstant="0.5" specularExponent="32" lighting-color="white" result="env">
+      <feDistantLight azimuth="45" elevation="75"/>
+      <feDistantLight azimuth="-30" elevation="30"/>
+      <fePointLight x="800" y="-400" z="600"/>
+    </feSpecularLighting>
+    <feComposite in="env" in2="SourceAlpha" operator="in"/>
+  </filter>
+
+  <!-- Caustics for liquids -->
+  <filter id="caustics" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="4" seed="42" result="caust"/>
+    <feColorMatrix in="caust" type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer>
+    <feDisplacementMap in="SourceGraphic" in2="caust" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+
+  <!-- Meniscus / Surface tension -->
+  <filter id="meniscus" x="-20%" y="-20%" width="140%" height="140%">
+    <feMorphology in="SourceAlpha" operator="erode" radius="1" result="eroded"/>
+    <feGaussianBlur in="eroded" stdDeviation="1.5" result="blur"/>
+    <feSpecularLighting surfaceScale="15" specularConstant="1.5" specularExponent="100" lighting-color="white" result="spec">
+      <fePointLight x="50%" y="0%" z="100"/>
+    </feSpecularLighting>
+    <feComposite in="spec" in2="SourceAlpha" operator="in"/>
+  </filter>
+
+  <!-- Anisotropic brushing -->
+  <filter id="anisotropic" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.005 0.5" numOctaves="2" result="brush"/>
+    <feColorMatrix in="brush" type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.1"/></feComponentTransfer>
+    <feBlend in="SourceGraphic" in2="brush" mode="overlay"/>
+  </filter>
+
+  <!-- Soft contact shadow -->
+  <filter id="contactShadow" x="-50%" y="0%" width="200%" height="150%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="15" result="blur"/>
+    <feOffset dx="0" dy="12" result="offset"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.25"/></feComponentTransfer>
+    <feComposite in="SourceGraphic" in2="offset" operator="over"/>
+  </filter>
+
+  <!-- GRADIENTS -->
+  <!-- Matte white plastic with subtle curvature -->
+  <linearGradient id="matteWhite" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#ffffff"/>
+    <stop offset="8%" stop-color="#fafafa"/>
+    <stop offset="22%" stop-color="#f5f5f4"/>
+    <stop offset="40%" stop-color="#eaeae8"/>
+    <stop offset="50%" stop-color="#e0e0de"/>
+    <stop offset="60%" stop-color="#eaeae8"/>
+    <stop offset="78%" stop-color="#f5f5f4"/>
+    <stop offset="92%" stop-color="#fafafa"/>
+    <stop offset="100%" stop-color="#ffffff"/>
+  </linearGradient>
+
+  <linearGradient id="matteWhiteDark" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#2f2a27"/>
+    <stop offset="8%" stop-color="#292522"/>
+    <stop offset="22%" stop-color "#221f1d"/>
+    <stop offset="40%" stop-color "#1c1917"/>
+    <stop offset="50%" stop-color "#181514"/>
+    <stop offset="60%" stop-color "#1c1917"/>
+    <stop offset="78%" stop-color "#221f1d"/>
+    <stop offset="92%" stop-color "#292522"/>
+    <stop offset="100%" stop-color "#2f2a27"/>
+  </linearGradient>
+
+  <!-- Dark matte cap -->
+  <linearGradient id="matteDark" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#3d3834"/>
+    <stop offset="20%" stop-color="#2f2a27"/>
+    <stop offset="50%" stop-color="#1c1917"/>
+    <stop offset="80%" stop-color="#141110"/>
+    <stop offset="100%" stop-color="#0c0a09"/>
+  </linearGradient>
+
+  <!-- Brushed aluminum -->
+  <linearGradient id="brushedAlu" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#b8b8b8"/>
+    <stop offset="15%" stop-color="#d0d0d0"/>
+    <stop offset="35%" stop-color="#e0e0e0"/>
+    <stop offset="50%" stop-color="#f0f0f0"/>
+    <stop offset="65%" stop-color="#e0e0e0"/>
+    <stop offset="85%" stop-color="#d0d0d0"/>
+    <stop offset="100%" stop-color="#b8b8b8"/>
+  </linearGradient>
+
+  <!-- Chrome -->
+  <linearGradient id="chrome" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f0f0f0"/>
+    <stop offset="25%" stop-color="#c0c0c0"/>
+    <stop offset="50%" stop-color="#ffffff"/>
+    <stop offset="75%" stop-color="#c0c0c0"/>
+    <stop offset="100%" stop-color="#f0f0f0"/>
+  </linearGradient>
+
+  <!-- Glass wall -->
+  <linearGradient id="glassWall" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="rgba(255,255,255,0.04)"/>
+    <stop offset="15%" stop-color="rgba(255,255,255,0.12)"/>
+    <stop offset="40%" stop-color="rgba(255,255,255,0.02)"/>
+    <stop offset="60%" stop-color="rgba(255,255,255,0.02)"/>
+    <stop offset="85%" stop-color="rgba(255,255,255,0.12)"/>
+    <stop offset="100%" stop-color="rgba(255,255,255,0.04)"/>
+  </linearGradient>
+
+  <!-- Liquid gradients with subsurface -->
+  <linearGradient id="liqSoap" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#a5e6c9" stop-opacity="0.92"/>
+    <stop offset="15%" stop-color="#8fd4b8" stop-opacity="0.88"/>
+    <stop offset="35%" stop-color="#6fc4a8" stop-opacity="0.82"/>
+    <stop offset="55%" stop-color="#4a9b7a" stop-opacity="0.75"/>
+    <stop offset="75%" stop-color="#3d8b6a" stop-opacity="0.68"/>
+    <stop offset="100%" stop-color="#2d6b4f" stop-opacity="0.55"/>
+  </linearGradient>
+
+  <linearGradient id="liqFoam" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#cffafe" stop-opacity="0.88"/>
+    <stop offset="20%" stop-color="#a5f3fc" stop-opacity="0.8"/>
+    <stop offset="45%" stop-color="#67e8f9" stop-opacity="0.7"/>
+    <stop offset="70%" stop-color="#22d3ee" stop-opacity="0.6"/>
+    <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.45"/>
+  </linearGradient>
+
+  <linearGradient id="liqPaste" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#fef3c7" stop-opacity="0.92"/>
+    <stop offset="15%" stop-color="#fde68a" stop-opacity="0.88"/>
+    <stop offset="35%" stop-color="#fcd34d" stop-opacity="0.82"/>
+    <stop offset="55%" stop-color="#f59e0b" stop-opacity="0.75"/>
+    <stop offset="75%" stop-color="#d97706" stop-opacity="0.68"/>
+    <stop offset="100%" stop-color="#b45309" stop-opacity="0.55"/>
+  </linearGradient>
+
+  <!-- Meniscus highlight -->
+  <radialGradient id="meniscusGrad" cx="50%" cy="0%" r="50%">
+    <stop offset="0%" stop-color="rgba(255,255,255,0.7)"/>
+    <stop offset="35%" stop-color="rgba(255,255,255,0.25)"/>
+    <stop offset="65%" stop-color="rgba(255,255,255,0.05)"/>
+    <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+  </radialGradient>
+
+  <!-- Fresnel rim -->
+  <radialGradient id="fresnelRim" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="rgba(255,255,255,0)"/>
+    <stop offset="65%" stop-color="rgba(255,255,255,0.02)"/>
+    <stop offset="85%" stop-color="rgba(255,255,255,0.15)"/>
+    <stop offset="100%" stop-color="rgba(255,255,255,0.4)"/>
+  </radialGradient>
+
+  <!-- Button gradient -->
+  <linearGradient id="btnGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#4a9b7a"/>
+    <stop offset="40%" stop-color="#387763"/>
+    <stop offset="100%" stop-color="#2d5f4f"/>
+  </linearGradient>
+
+  <!-- LED on/off -->
+  <radialGradient id="ledOn" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#ffffff"/>
+    <stop offset="15%" stop-color="#5ec98a"/>
+    <stop offset="40%" stop-color="#387763"/>
+    <stop offset="70%" stop-color="#2d5f4f"/>
+    <stop offset="100%" stop-color="#1e4a38"/>
+  </radialGradient>
+  <radialGradient id="ledOff" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#4a4540"/>
+    <stop offset="100%" stop-color="#2a2724"/>
+  </radialGradient>
+
+  <!-- Battery -->
+  <linearGradient id="batGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#2d5f4f"/>
+    <stop offset="100%" stop-color="#4a9b7a"/>
+  </linearGradient>
+
+  <!-- Background -->
+  <radialGradient id="bgGrad" cx="50%" cy="30%" r="70%">
+    <stop offset="0%" stop-color="#fafaf9"/>
+    <stop offset="40%" stop-color="#f5f5f4"/>
+    <stop offset="70%" stop-color="#e7e5e4"/>
+    <stop offset="100%" stop-color="#d6d3d1"/>
+  </radialGradient>
+  <radialGradient id="bgGradDark" cx="50%" cy="30%" r="70%">
+    <stop offset="0%" stop-color="#1c1917"/>
+    <stop offset="40%" stop-color="#141110"/>
+    <stop offset="70%" stop-color="#0c0a09"/>
+    <stop offset="100%" stop-color="#050403"/>
+  </radialGradient>
+</defs>
+`;
+
+// ============================================================
+// MAIN RENDERER
+// ============================================================
+function createProductSVG(variant = 'front') {
+  const isDark = variant.includes('dark');
+  const isLight = variant.includes('light');
+  const baseVariant = variant.replace('-light', '').replace('-dark', '').replace('product-', '');
+  
+  const views = {
+    front: { yaw: 0, pitch: -3, roll: 0, dolly: 1.0 },
+    side: { yaw: 28, pitch: -3, roll: 0, dolly: 1.08 },
+    open: { yaw: -18, pitch: -8, roll: 2, dolly: 1.15 },
+    mounted: { yaw: 8, pitch: 1, roll: 0, dolly: 1.25 },
+    lifestyle: { yaw: -22, pitch: -6, roll: -1, dolly: 1.12 }
+  };
+  const view = views[baseVariant] || views.front;
+  
+  const W = RENDER.width, H = RENDER.height;
+  const CX = W/2, CY = H/2;
+  
+  const bgGrad = isDark ? 'bgGradDark' : 'bgGrad';
+  const matteGrad = isDark ? 'matteWhiteDark' : 'matteWhite';
+  const shadowCol = isDark ? 'rgba(0,0,0,0.45)' : 'rgba(12,10,9,0.12)';
+  const textCol = isDark ? '#fafaf9' : '#1c1917';
+  const mutedCol = isDark ? '#a8a29e' : '#57534e';
+  const lineCol = isDark ? '#3d3834' : '#d6d3d1';
+
+  // Transform matrix for camera
+  const tx = `translate(${CX - 400}, ${200}) rotate(${view.yaw}, 400, 500) scale(${view.dolly})`;
+
+  let svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+  ${FILTERS}
+  
+  <!-- Background with subtle gradient -->
+  <rect width="${W}" height="${H}" fill="url(#${bgGrad})"/>
+  
+  <!-- Ground plane shadow -->
+  <ellipse cx="${CX}" cy="${H - 100}" rx="500" ry="55" fill="${shadowCol}"/>
+  <ellipse cx="${CX}" cy="${H - 100}" rx="320" ry="28" fill="${shadowCol}" opacity="0.6"/>
+  
+  <!-- Main product group with contact shadow -->
+  <g filter="url(#contactShadow)" transform="${tx}">
+`;
+
+  // ============ BODY ============
+  const B = { x: 160, y: 0, w: 480, h: 1100, r: 52 };
+  
+  // Outer shell with Fresnel
+  svg += `
+    <path d="M${B.x},${B.y+B.r} Q${B.x},${B.y} ${B.x+B.r},${B.y} L${B.x+B.w-B.r},${B.y} Q${B.x+B.w},${B.y} ${B.x+B.w},${B.y+B.r} L${B.x+B.w},${B.y+B.h-B.r} Q${B.x+B.w},${B.y+B.h} ${B.x+B.w-B.r},${B.y+B.h} L${B.x+B.r},${B.y+B.h} Q${B.x},${B.y+B.h} ${B.x},${B.y+B.h-B.r} Z" 
+      fill="url(#${matteGrad})" filter="url(#ggxSpecular)"/>
+    <!-- Fresnel rim -->
+    <path d="M${B.x},${B.y+B.r} Q${B.x},${B.y} ${B.x+B.r},${B.y} L${B.x+B.w-B.r},${B.y} Q${B.x+B.w},${B.y} ${B.x+B.w},${B.y+B.r} L${B.x+B.w},${B.y+B.h-B.r} Q${B.x+B.w},${B.y+B.h} ${B.x+B.w-B.r},${B.y+B.h} L${B.x+B.r},${B.y+B.h} Q${B.x},${B.y+B.h} ${B.x},${B.y+B.h-B.r} Z"
+      fill="url(#fresnelRim)"/>
+    <!-- Subtle vertical highlight -->
+    <path d="M${B.x+B.w*0.35},${B.y+20} L${B.x+B.w*0.35},${B.y+B.h-20}" stroke="url(#reflSide)" stroke-width="2" opacity="0.3" filter="url(#ggxSpecular)"/>
+    <path d="M${B.x+B.w*0.65},${B.y+20} L${B.x+B.w*0.65},${B.y+B.h-20}" stroke="url(#reflSide)" stroke-width="2" opacity="0.2" filter="url(#ggxSpecular)"/>
+  `;
+
+  // ============ CAP ============
+  svg += `
+    <!-- Cap outer -->
+    <path d="M${B.x},${B.y-40} Q${B.x},${B.y-65} ${B.x+B.r},${B.y-65} L${B.x+B.w-B.r},${B.y-65} Q${B.x+B.w},${B.y-65} ${B.x+B.w},${B.y-40} L${B.x+B.w},${B.y} L${B.x},${B.y} Z" 
+      fill="url(#matteDark)"/>
+    <!-- Cap inner -->
+    <path d="M${B.x+25},${B.y-32} Q${B.x+25},${B.y-55} ${B.x+B.r+12},${B.y-55} L${B.x+B.w-B.r-12},${B.y-55} Q${B.x+B.w-25},${B.y-55} ${B.x+B.w-25},${B.y-32} L${B.x+B.w-25},${B.y-10} L${B.x+25},${B.y-10} Z" 
+      fill="${isDark ? '#050403' : '#0c0a09'}"/>
+    <!-- Cap highlight ring -->
+    <ellipse cx="${B.x+B.w/2}" cy="${B.y-32}" rx="${B.w/2-30}" ry="10" fill="rgba(255,255,255,0.12)"/>
+    <!-- IR Sensor -->
+    <circle cx="${B.x+B.w/2}" cy="${B.y-26}" r="24" fill="none" stroke="#387763" stroke-width="3" opacity="0.85">
+      <animate attributeName="opacity" values="0.35;1;0.35" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="${B.x+B.w/2}" cy="${B.y-26}" r="14" fill="rgba(56,119,99,0.12)"/>
+    <circle cx="${B.x+B.w/2}" cy="${B.y-26}" r="8" fill="url(#chrome)" filter="url(#ggxSpecular)"/>
+  `;
+
+  // ============ CHAMBERS ============
+  const CH = { top: B.y + 100, h: 290, gap: 25, x: B.x + 38, w: B.w - 76, r: 34, ir: 28 };
+  
+  CHAMBERS.forEach((ch, i) => {
+    const y = CH.top + i * (CH.h + CH.gap);
+    const fillH = CH.h * ch.fill;
+    const fillY = y + CH.h - fillH;
+    const lx = CH.x + 5, lw = CH.w - 10, lr = CH.ir;
+    const mat = MATERIALS[ch.material];
+    
+    svg += `
+    <g transform="translate(0, ${y})">
+      <!-- Glass outer wall with reflection -->
+      <path d="M${CH.x},${CH.r} Q${CH.x},0 ${CH.x+CH.r},0 L${CH.x+CH.w-CH.r},0 Q${CH.x+CH.w},0 ${CH.x+CH.w},${CH.r} L${CH.x+CH.w},${CH.h-CH.r} Q${CH.x+CH.w},${CH.h} ${CH.x+CH.w-CH.r},${CH.h} L${CH.x+CH.r},${CH.h} Q${CH.x},${CH.h} ${CH.x},${CH.h-CH.r} Z"
+        fill="url(#glassWall)" stroke="${mat.albedo}44" stroke-width="1.2" filter="url(#envReflection)"/>
+      
+      <!-- Glass inner wall (thickness) -->
+      <path d="M${lx},${lr} Q${lx},0 ${lx+lr},0 L${lx+lw-lr},0 Q${lx+lw},0 ${lx+lw},${lr} L${lx+lw},${CH.h-lr} Q${lx+lw},${CH.h} ${lx+lw-lr},${CH.h} L${lx+lr},${CH.h} Q${lx},${CH.h} ${lx},${CH.h-lr} Z"
+        fill="rgba(255,255,255,0.015)" stroke="rgba(255,255,255,0.06)" stroke-width="0.6"/>
+      
+      <!-- LIQUID VOLUME with subsurface scattering -->
+      <path d="M${lx},${fillY} L${lx},${y+CH.h-lr} Q${lx},${y+CH.h} ${lx+lr},${y+CH.h} L${lx+lw-lr},${y+CH.h} Q${lx+lw},${y+CH.h} ${lx+lw},${y+CH.h-lr} L${lx+lw},${fillY} Z"
+        fill="url(#${ch.material})" filter="url(#subsurface)">
+        <!-- Liquid surface animation -->
+        <animate attributeName="d" 
+          values="M${lx},${fillY} L${lx},${y+CH.h-lr} Q${lx},${y+CH.h} ${lx+lr},${y+CH.h} L${lx+lw-lr},${y+CH.h} Q${lx+lw},${y+CH.h} ${lx+lw},${y+CH.h-lr} L${lx+lw},${fillY} Z;
+                  M${lx},${fillY-1.5} L${lx},${y+CH.h-lr} Q${lx},${y+CH.h} ${lx+lr},${y+CH.h} L${lx+lw-lr},${y+CH.h} Q${lx+lw},${y+CH.h} ${lx+lw},${y+CH.h-lr} L${lx+lw},${fillY-1.5} Z;
+                  M${lx},${fillY} L${lx},${y+CH.h-lr} Q${lx},${y+CH.h} ${lx+lr},${y+CH.h} L${lx+lw-lr},${y+CH.h} Q${lx+lw},${y+CH.h} ${lx+lw},${y+CH.h-lr} L${lx+lw},${fillY} Z"
+          dur="${2.8 + i * 0.4}s" repeatCount="indefinite"/>
+      </path>
+      
+      <!-- Meniscus / surface highlight -->
+      <ellipse cx="${CH.x+CH.w/2}" cy="${fillY}" rx="${lw/2-5}" ry="8" fill="url(#meniscusGrad)" filter="url(#meniscus)"/>
+      
+      <!-- Foam bubbles with physics -->
+      ${ch.bubbles ? generateBubbles(CH.x+CH.w/2, fillY, lw-12, fillH-12, 18, mat, y) : ''}
+      
+      <!-- Caustics on back wall -->
+      <rect x="${lx}" y="${fillY}" width="${lw}" height="${y+CH.h-fillY}" fill="url(#${ch.material})" fill-opacity="0.1" filter="url(#caustics)"/>
+      
+      <!-- Chamber label -->
+      <text x="${CH.x+CH.w/2}" y="${CH.h + 38}" text-anchor="middle" 
+        font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="${textCol}">${ch.icon(CH.x+CH.w/2, CH.h+18, 1)} ${esc(ch.name)}</text>
+      <text x="${CH.x+CH.w/2}" y="${CH.h + 62}" text-anchor="middle" 
+        font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="${mutedCol}">300 ml · ${esc(getSubLabel(ch.id))}</text>
+      
+      <!-- Fill level indicator ring -->
+      <circle cx="${CH.x+CH.w/2}" cy="${y + 140}" r="26" fill="${mat.albedo}" fill-opacity="0.12" stroke="${mat.albedo}" stroke-width="1.8" stroke-opacity="0.25"/>
+      <text x="${CH.x+CH.w/2}" y="${y + 147}" text-anchor="middle" font-family="system-ui, sans-serif" font-size="36" font-weight="200" fill="${mat.albedo}">≈</text>
+    </g>`;
+  });
+
+  // ============ CONTROL PANEL ============
+  const PY = B.y + B.h - 170, PX = B.x + 38, PW = B.w - 76, PH = 140, PR = 24;
+  svg += `
+    <!-- Panel base -->
+    <rect x="${PX}" y="${PY}" width="${PW}" height="${PH}" rx="${PR}" fill="${isDark ? '#080706' : '#141110'}" filter="url(#innerShadow)"/>
+    <rect x="${PX+3}" y="${PY+3}" width="${PW-6}" height="${PH-6}" rx="${PR-2}" fill="${isDark ? '#050403' : '#0c0a09'}" opacity="0.6"/>
+    
+    <!-- LED Indicators with glow -->
+    <g transform="translate(${B.x+B.w/2}, ${PY + 38})">
+      ${CHAMBERS.map((ch, i) => {
+        const mat = MATERIALS[ch.material];
+        const em = ch.id === 'soap' ? 'emissiveGreen' : ch.id === 'foam' ? 'emissiveCyan' : 'emissiveAmber';
+        return `
+        <g transform="translate(${(i-1)*80}, 0)">
+          <!-- LED base -->
+          <circle cx="0" cy="0" r="18" fill="url(#ledOff)" stroke="${mat.albedo}" stroke-width="2" filter="url(#ggxSpecular)"/>
+          <!-- LED glow ring -->
+          <circle cx="0" cy="0" r="22" fill="none" stroke="${mat.albedo}" stroke-width="1" opacity="0.3">
+            <animate attributeName="r" values="22;28;22" dur="${2.2 + i*0.2}s" repeatCount="indefinite" begin="${i*0.35}s"/>
+            <animate attributeName="opacity" values="0.3;0.6;0.3" dur="${2.2 + i*0.2}s" repeatCount="indefinite" begin="${i*0.35}s"/>
+          </circle>
+          <!-- Active LED -->
+          <circle cx="0" cy="0" r="18" fill="url(#ledOn)" filter="url(#ggxSpecular)">
+            <animate attributeName="fill" values="url(#ledOff);url(#ledOn);url(#ledOff)" dur="${2.5 + i*0.3}s" repeatCount="indefinite" begin="${i*0.4}s"/>
+          </circle>
+          <text x="0" y="32" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="${mat.albedo}" letter-spacing="0.8px">${ch.short}</text>
+        </g>`;
+      }).join('')}
+    </g>
+    
+    <!-- Mode Button with tactile feel -->
+    <g transform="translate(${B.x+B.w/2}, ${PY + 95})">
+      <!-- Button base -->
+      <circle cx="0" cy="0" r="34" fill="url(#btnGrad)" filter="url(#ggxSpecular)">
+        <animate attributeName="r" values="34;35;34" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Button highlight -->
+      <circle cx="0" cy="0" r="30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+      <!-- Button press ripple -->
+      <circle cx="0" cy="0" r="34" fill="none" stroke="#5ec98a" stroke-width="2.5" opacity="0">
+        <animate attributeName="r" values="34;55;34" dur="3.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0;0" dur="3.5s" repeatCount="indefinite"/>
+      </circle>
+      <text x="0" y="11" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="800" fill="white" filter="url(#ggxSpecular)">M</text>
+    </g>
+  `;
+
+  // ============ DISPENSING NOZZLES ============
+  const NY = B.y + B.h + 12;
+  svg += `
+    <g filter="url(#contactShadow)">
+      ${CHAMBERS.map((ch, i) => {
+        const mat = MATERIALS[ch.material];
+        return `
+        <g transform="translate(${B.x+B.w/2 - 95 + i*95}, ${NY})">
+          <rect x="-22" y="0" width="44" height="18" rx="8" fill="${isDark ? '#2a2623' : '#d6d3d1'}" filter="url(#innerShadow)"/>
+          <ellipse cx="0" cy="0" rx="18" ry="4" fill="${mat.albedo}" opacity="0.95" filter="url(#ggxSpecular)">
+            <animate attributeName="ry" values="4;10;4" dur="${1.6 + i*0.15}s" repeatCount="indefinite" begin="${i*0.25}s"/>
+          </ellipse>
+          <circle cx="0" cy="8" r="4" fill="${mat.albedo}"/>
+          <!-- Drip animation -->
+          <circle cx="0" cy="18" r="3" fill="${mat.albedo}" opacity="0">
+            <animate attributeName="cy" values="18;45;18" dur="${2.5 + i*0.3}s" repeatCount="indefinite" begin="${1.2 + i*0.4}s"/>
+            <animate attributeName="opacity" values="0;0.8;0" dur="${2.5 + i*0.3}s" repeatCount="indefinite" begin="${1.2 + i*0.4}s"/>
+            <animate attributeName="r" values="3;1;3" dur="${2.5 + i*0.3}s" repeatCount="indefinite" begin="${1.2 + i*0.4}s"/>
+          </circle>
+        </g>`;
+      }).join('')}
+    </g>
+  `;
+
+  // ============ USB-C & BATTERY (side views) ============
+  if (baseVariant !== 'front') {
+    const PX2 = B.x + B.w + 20, PY2 = B.y + 250;
+    svg += `
+    <g transform="translate(${PX2}, ${PY2})" filter="url(#contactShadow)">
+      <!-- USB-C Port -->
+      <rect x="0" y="0" width="36" height="16" rx="4" fill="${isDark ? '#2a2623' : '#d6d3d1'}" filter="url(#innerShadow)"/>
+      <rect x="4" y="4" width="28" height="8" rx="2" fill="${isDark ? '#0c0a09' : '#1c1917'}"/>
+      <text x="18" y="34" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="${mutedCol}">USB-C</text>
+      
+      <!-- Battery Indicator -->
+      <g transform="translate(0, 50)">
+        <rect x="0" y="0" width="36" height="64" rx="5" fill="${isDark ? '#141110' : '#1c1917'}" filter="url(#innerShadow)"/>
+        ${[0,1,2,3,4].map(i => `
+          <rect x="4" y="${5 + i*11}" width="28" height="9" rx="2" fill="${i < 4 ? 'url(#batGrad)' : '#3d3834'}" filter="url(#ggxSpecular)"/>
+        `).join('')}
+        <text x="18" y="80" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#387763" font-weight="700">100%</text>
+      </g>
+    </g>`;
+  }
+
+  // ============ MOUNTING BRACKET ============
+  if (baseVariant === 'mounted' || baseVariant === 'lifestyle') {
+    const BX = B.x - 40, BY = B.y + 120;
+    svg += `
+    <g transform="translate(${BX}, ${BY})" filter="url(#contactShadow)">
+      <rect x="0" y="0" width="44" height="400" rx="8" fill="${isDark ? '#2a2623' : '#d6d3d1'}" opacity="0.9" filter="url(#anisotropic)"/>
+      <circle cx="22" cy="40" r="12" fill="${isDark ? '#0c0a09' : '#1c1917'}"/>
+      <circle cx="22" cy="200" r="10" fill="${isDark ? '#0c0a09' : '#1c1917'}" opacity="0.4"/>
+      <circle cx="22" cy="360" r="12" fill="${isDark ? '#0c0a09' : '#1c1917'}"/>
+      <text x="22" y="420" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="${mutedCol}">3M · Schrauben</text>
+    </g>`;
+  }
+
+  // ============ 3-in-1 BRAND BADGE ============
+  svg += `
+    <g transform="translate(${B.x+B.w+35}, ${B.y+130})">
+      <circle cx="0" cy="0" r="50" fill="url(#btnGrad)" filter="url(#ggxSpecular)"/>
+      <circle cx="0" cy="0" r="46" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+      <text x="0" y="17" text-anchor="middle" font-family="system-ui, sans-serif" font-size="52" font-weight="800" fill="white">3·1</text>
+      <!-- Pulsing ring -->
+      <circle cx="0" cy="0" r="50" fill="none" stroke="#5ec98a" stroke-width="2.5" opacity="0.2">
+        <animate attributeName="r" values="50;70;50" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.2;0;0" dur="5s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  `;
+
+  svg += `
+  </g>
+  
+  <!-- Final ground contact shadows -->
+  <ellipse cx="${CX}" cy="${H - 75}" rx="350" ry="10" fill="${shadowCol}" opacity="0.5"/>
+  <ellipse cx="${CX}" cy="${H - 75}" rx="220" ry="5" fill="${shadowCol}" opacity="0.4"/>
+  
+  <!-- Product name -->
+  <text x="${CX}" y="${H - 35}" text-anchor="middle" 
+    font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="700" 
+    fill="${textCol}" letter-spacing="-0.02em">3-in-1 Seifenspender</text>
+  <text x="${CX}" y="${H + 15}" text-anchor="middle" 
+    font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="${mutedCol}">Seife · Rasierschaum · Zahnpasta</text>
+  
+  <!-- Post-process filters applied to entire scene -->
+  
+</svg>`;
+
+  return svg;
+}
+
+function getSubLabel(id) {
+  return id === 'soap' ? 'Sanft & hygienisch' : id === 'foam' ? 'Cremig & stabil' : 'Präzise dosiert';
+}
+
+function esc(str) {
+  return str.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+}
+
+function generateBubbles(cx, surfaceY, width, height, count, mat, chamberY) {
+  let out = '';
+  for (let i = 0; i < count; i++) {
+    const bx = cx - width/2 + (i % 5) * (width/4) + (Math.random()-0.5)*12;
+    const by = surfaceY + 6 + Math.floor(i/5) * (height/3) + (Math.random()-0.5)*18;
+    const r = 2.5 + Math.random() * 4.5;
+    const dur = 1.4 + Math.random() * 1.6;
+    const delay = Math.random() * 2.5;
+    out += `<ellipse cx="${bx}" cy="${by}" rx="${r}" ry="${r*0.55}" fill="${mat.albedo}" fill-opacity="0.85" stroke="${mat.albedo}" stroke-width="0.4" stroke-opacity="0.4" filter="url(#ggxSpecular)">
+      <animate attributeName="cy" values="${by};${by-35-Math.random()*25};${by}" dur="${dur}s" repeatCount="indefinite" begin="${delay}s"/>
+      <animate attributeName="rx" values="${r};${r*1.6};${r}" dur="${dur}s" repeatCount="indefinite" begin="${delay}s"/>
+      <animate attributeName="opacity" values="0.85;0.1;0.85" dur="${dur}s" repeatCount="indefinite" begin="${delay}s"/>
+    </ellipse>`;
+  }
+  return out;
+}
+
+function genACESLUT() {
+  // Simplified ACES-like curve
+  const vals = [];
+  for (let i = 0; i <= 20; i++) {
+    const x = i / 20;
+    // ACES approximation: contrast + shoulder
+    let y = x < 0.5 ? x * 1.1 : 1 - (1-x) * 0.85;
+    y = Math.max(0, Math.min(1, y));
+    vals.push(y.toFixed(3));
+  }
+  return vals.join(' ');
+}
+
+// ============================================================
+// USAGE STEPS
+// ============================================================
+function createUsageSVG(step) {
+  const W = 1000, H = 750, CX = W/2, CY = H/2;
+  
+  const steps = [
+    { n: 1, title: 'Auspacken & Laden', key: 'unbox' },
+    { n: 2, title: 'Kammern befüllen', key: 'fill' },
+    { n: 3, title: 'Montage wählen', key: 'mount' },
+    { n: 4, title: 'Dosierung einstellen', key: 'dose' },
+    { n: 5, title: 'Los geht\'s!', key: 'use' }
+  ];
+  
+  const s = steps[step-1];
+  
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+  ${FILTERS}
+  <rect width="${W}" height="${H}" fill="url(#bgGrad)"/>
+  
+  <!-- Step badge -->
+  <circle cx="${W-100}" cy="100" r="65" fill="url(#btnGrad)" filter="url(#ggxSpecular)"/>
+  <text x="${W-100}" y="115" text-anchor="middle" font-family="system-ui, sans-serif" font-size="60" font-weight="800" fill="white">${s.n}</text>
+  
+  <text x="${CX}" y="60" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="40" font-weight="700" fill="#1c1917">${esc(s.title)}</text>
+  <text x="${CX}" y="100" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" fill="#57534e">Schritt ${s.n} von 5</text>
+  
+  ${renderUsageScene(s.key, CX, CY)}
+  
+  <!-- Progress -->
+  <line x1="100" y1="${H-50}" x2="${W-100}" y2="${H-50}" stroke="#d6d3d1" stroke-width="5" stroke-linecap="round"/>
+  <line x1="100" y1="${H-50}" x2="${100 + s.n * 160}" y2="${H-50}" stroke="#387763" stroke-width="5" stroke-linecap="round">
+    <animate attributeName="x2" values="100;${100 + s.n * 160}" dur="1s" fill="freeze"/>
+  </line>
+</svg>`;
+}
+
+function renderUsageScene(key, cx, cy) {
+  const scenes = {
+    unbox: `
+      <g transform="translate(${cx-180}, ${cy-100})">
+        <path d="M0,0 L360,0 L360,240 L0,240 Z" fill="#e7e5e4" stroke="#d6d3d1" stroke-width="2"/>
+        <path d="M12,12 L348,12 L348,228 L12,228 Z" fill="url(#matteWhite)" filter="url(#ggxSpecular)"/>
+        <g transform="translate(180,0)">
+          <path d="M-168,-72 Q-84,-96 0,-72 Q84,-96 168,-72 L168,0 L-168,0 Z" fill="#d6d3d1" opacity="0.85">
+            <animateTransform attributeName="transform" type="rotate" values="0,180,0; -50,180,0; 0,180,0" dur="3.5s" repeatCount="indefinite"/>
+          </path>
+          <path d="M-168,240 Q-84,264 0,240 Q84,264 168,240 L168,312 L-168,312 Z" fill="#d6d3d1" opacity="0.85">
+            <animateTransform attributeName="transform" type="rotate" values="0,180,240; 50,180,240; 0,180,240" dur="3.5s" repeatCount="indefinite"/>
+          </path>
+        </g>
+        <rect x="96" y="48" width="168" height="264" rx="20" fill="url(#matteWhite)" filter="url(#contactShadow) url(#ggxSpecular)"/>
+        <circle cx="180" cy="84" r="22" fill="url(#btnGrad)" filter="url(#ggxSpecular)"/>
+        <text x="180" y="94" text-anchor="middle" font-size="26" font-weight="800" fill="white">3·1</text>
+      </g>
+      <path d="M${cx+220},${cy+100} Q${cx+270},${cy+100} ${cx+270},${cy+150} Q${cx+270},${cy+200} ${cx+220},${cy+200}" stroke="#a8a29e" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <rect x="${cx+200}" y="${cy+195}" width="40" height="18" rx="4" fill="#d6d3d1" filter="url(#innerShadow)"/>
+      <rect x="${cx+205}" y="${cy+199}" width="30" height="10" rx="2" fill="#1c1917"/>
+      <g transform="translate(${cx+220}, ${cy+130})">
+        <line x1="0" y1="-18" x2="0" y2="-6" stroke="#387763" stroke-width="4" stroke-linecap="round" opacity="0"><animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite"/></line>
+        <line x1="-10" y1="-16" x2="-10" y2="-4" stroke="#387763" stroke-width="4" stroke-linecap="round" opacity="0"><animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="0.2s"/></line>
+        <line x1="10" y1="-16" x2="10" y2="-4" stroke="#387763" stroke-width="4" stroke-linecap="round" opacity="0"><animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="0.4s"/></line>
+      </g>
+    `,
+    fill: `
+      <g transform="translate(${cx-240}, ${cy-180})">
+        <rect x="0" y="0" width="480" height="600" rx="44" fill="url(#matteWhite)" filter="url(#contactShadow) url(#ggxSpecular)"/>
+        <rect x="24" y="24" width="432" height="48" rx="20" fill="#1c1917"/>
+        <g transform="translate(24, 96)">
+          ${['#4a9b7a','#06b6d4','#f59e0b'].map((c, i) => `
+            <g transform="translate(${i * 150}, 0)">
+              <ellipse cx="75" cy="0" rx="68" ry="15" fill="${c}" opacity="0.25"/>
+              <path d="M10,15 Q10,-30 75,-40 Q140,-30 140,15" fill="none" stroke="${c}" stroke-width="2.5" stroke-dasharray="10 5"/>
+              <path d="M25,15 Q45,-20 75,-35 Q105,-20 125,15" fill="${c}80" opacity="0.5">
+                <animate attributeName="d" values="M25,15 Q45,-20 75,-35 Q105,-20 125,15; M25,15 Q45,-10 75,-25 Q105,-10 125,15; M25,15 Q45,-20 75,-35 Q105,-20 125,15" dur="2.2s" repeatCount="indefinite" begin="${i*0.35}s"/>
+              </path>
+              <g transform="translate(75, -35)">
+                ${[0,1,2].map(j => `<ellipse cx="${(j-1)*8}" cy="${j*10}" rx="4" ry="7" fill="${c}" opacity="${0.8-j*0.25}"><animate attributeName="cy" values="${j*10};${j*10+55};${j*10}" dur="1.6s" repeatCount="indefinite" begin="${j*0.2}s"/><animate attributeName="opacity" values="${0.8-j*0.25};0;${0.8-j*0.25}" dur="1.6s" repeatCount="indefinite" begin="${j*0.2}s"/></ellipse>`).join('')}
+              </g>
+              <text x="75" y="180" text-anchor="middle" font-size="16" font-weight="600" fill="${c}">${['FLÜSSIGSEIFE','RASIERSCHAUM','ZAHNPASTA'][i]}</text>
+            </g>
+          `).join('')}
+        </g>
+      </g>
+    `,
+    mount: `
+      <g transform="translate(${cx-300}, ${cy-220})">
+        <g fill="#e7e5e4">${[...Array(7)].map((_,r)=>[...Array(6)].map((_,c)=>`<rect x="${c*100}" y="${r*75}" width="96" height="71" rx="5" stroke="#d6d3d1" stroke-width="1"/>`).join('')).join('')}</g>
+        <g transform="translate(120, 120)" filter="url(#contactShadow)">
+          <rect x="0" y="0" width="220" height="260" rx="20" fill="url(#matteWhite)" filter="url(#ggxSpecular)"/>
+          <rect x="24" y="24" width="172" height="212" rx="12" fill="#1c1917" opacity="0.25"/>
+          <circle cx="36" cy="60" r="16" fill="#387763" opacity="0.3"/>
+          <circle cx="184" cy="60" r="16" fill="#387763" opacity="0.3"/>
+          <circle cx="36" cy="200" r="16" fill="#387763" opacity="0.3"/>
+          <circle cx="184" cy="200" r="16" fill="#387763" opacity="0.3"/>
+          <circle cx="110" cy="130" r="26" fill="url(#btnGrad)" filter="url(#ggxSpecular)"><animate attributeName="r" values="26;29;26" dur="2.2s" repeatCount="indefinite"/></circle>
+          <text x="110" y="139" text-anchor="middle" font-size="24" font-weight="800" fill="white">3M</text>
+        </g>
+        <g transform="translate(380, 120)" filter="url(#contactShadow)">
+          <rect x="0" y="0" width="220" height="260" rx="20" fill="url(#matteWhite)" filter="url(#ggxSpecular)"/>
+          <rect x="24" y="24" width="172" height="212" rx="12" fill="#1c1917" opacity="0.25"/>
+          <circle cx="36" cy="60" r="12" fill="#a8a29e"/>
+          <circle cx="184" cy="60" r="12" fill="#a8a29e"/>
+          <circle cx="36" cy="200" r="12" fill="#a8a29e"/>
+          <circle cx="184" cy="200" r="12" fill="#a8a29e"/>
+          <g transform="translate(110, 130)"><circle cx="0" cy="0" r="20" fill="#a8a29e" filter="url(#anisotropic)"/><circle cx="0" cy="0" r="8" fill="#1c1917"/></g>
+        </g>
+        <g transform="translate(140, 420)" filter="url(#contactShadow)">
+          <rect x="0" y="0" width="440" height="220" rx="28" fill="url(#matteWhite)" filter="url(#ggxSpecular)"/>
+          <rect x="24" y="24" width="392" height="172" rx="18" fill="#1c1917" opacity="0.15"/>
+          ${['#4a9b7a','#06b6d4','#f59e0b'].map((c,i)=>`<circle cx="${74+i*120}" cy="110" r="30" fill="${c}" opacity="0.2"/><circle cx="${74+i*120}" cy="110" r="15" fill="${c}" opacity="0.4"/>`).join('')}
+        </g>
+      </g>
+    `,
+    dose: `
+      <g transform="translate(${cx-240}, ${cy-150})">
+        <rect x="0" y="0" width="480" height="480" rx="40" fill="url(#matteWhite)" filter="url(#contactShadow) url(#ggxSpecular)"/>
+        <rect x="36" y="36" width="408" height="408" rx="28" fill="#141110"/>
+        <g transform="translate(240, 96)">
+          ${['#4a9b7a','#06b6d4','#f59e0b'].map((c,i)=>`<circle cx="${(i-1)*84}" cy="0" r="22" fill="url(#ledOff)" stroke="${c}" stroke-width="2.5" filter="url(#ggxSpecular)"><animate attributeName="fill" values="url(#ledOff);url(#ledOn);url(#ledOff)" dur="2.2s" repeatCount="indefinite" begin="${i*0.4}s"/></circle><text x="${(i-1)*84}" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="${c}" letter-spacing="0.8px">${['SEIFE','SCHAUM','PASTE'][i]}</text>`).join('')}
+        </g>
+        <circle cx="240" cy="240" r="44" fill="url(#btnGrad)" filter="url(#ggxSpecular)"><animate attributeName="r" values="44;46;44" dur="3.5s" repeatCount="indefinite"/></circle>
+        <text x="240" y="252" text-anchor="middle" font-size="34" font-weight="800" fill="white">M</text>
+        <circle cx="240" cy="240" r="44" fill="none" stroke="#5ec98a" stroke-width="3.5" opacity="0"><animate attributeName="r" values="44;72;44" dur="3.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0" dur="3.5s" repeatCount="indefinite"/></circle>
+        <text x="240" y="336" text-anchor="middle" font-size="18" fill="#e7e5e4" font-weight="500">Kurz drücken = Modus wechseln</text>
+        <text x="240" y="370" text-anchor="middle" font-size="18" fill="#f59e0b" font-weight="600">3 Sek. halten = Stufe ändern (1–3)</text>
+        <g transform="translate(240, 410)">${[0,1,2].map(i=>`<circle cx="${(i-1)*54}" cy="0" r="17" fill="${i<2?'url(#batGrad)':'#3d3834'}" stroke="#d6d3d1" stroke-width="2" filter="url(#ggxSpecular)"/>`).join('')}</g>
+      </g>
+    `,
+    use: `
+      <g transform="translate(${cx-360}, ${cy-250})">
+        <rect x="0" y="0" width="720" height="550" rx="24" fill="#f5f5f4" stroke="#d6d3d1" stroke-width="2"/>
+        <rect x="24" y="24" width="672" height="502" rx="18" fill="url(#matteWhite)" opacity="0.25"/>
+        <g transform="translate(260, 72)" filter="url(#contactShadow)">
+          <rect x="0" y="0" width="192" height="384" rx="24" fill="url(#matteWhite)" filter="url(#ggxSpecular)"/>
+          <rect x="12" y="12" width="168" height="360" rx="16" fill="#1c1917" opacity="0.12"/>
+          ${['#4a9b7a','#06b6d4','#f59e0b'].map((c,i)=>`<g transform="translate(96, ${84+i*96})"><rect x="-36" y="-10" width="72" height="24" rx="10" fill="#d6d3d1" filter="url(#innerShadow)"/><ellipse cx="0" cy="-10" rx="24" ry="5" fill="${c}" opacity="0.95" filter="url(#ggxSpecular)"><animate attributeName="ry" values="5;14;5" dur="1.4s" repeatCount="indefinite" begin="${i*0.3}s"/></ellipse><ellipse cx="0" cy="-38" rx="15" ry="22" fill="${c}" opacity="0"><animate attributeName="opacity" values="0;0.6;0" dur="2.2s" repeatCount="indefinite" begin="${0.6+i*0.35}s"/><animate attributeName="cy" values="-38;-85;-38" dur="2.2s" repeatCount="indefinite" begin="${0.6+i*0.35}s"/><animate attributeName="ry" values="22;42;22" dur="2.2s" repeatCount="indefinite" begin="${0.6+i*0.35}s"/></ellipse><circle cx="0" cy="6" r="6" fill="${c}"/></g>`).join('')}
+        </g>
+        <g transform="translate(140, 240)"><ellipse cx="0" cy="0" rx="42" ry="60" fill="#d6d3d1" transform="rotate(-22)"/><ellipse cx="-36" cy="-48" rx="18" ry="42" fill="#d6d3d1" transform="rotate(35)"/></g>
+        ${[...Array(10)].map((_,i)=>{const x=180+(i%5)*110;const y=120+Math.floor(i/5)*180;return `<g transform="translate(${x},${y})"><polygon points="0,-12 3,-4 12,-4 5,2 7,14 0,7 -7,14 -5,2 -12,-4 -3,-4" fill="#f59e0b" opacity="0"><animate attributeName="opacity" values="0;1;0" dur="1.4s" repeatCount="indefinite" begin="${i*0.18}s"/><animateTransform attributeName="transform" type="rotate" values="0;180;360" dur="3s" repeatCount="indefinite"/></polygon></g>`;}).join('')}
+        <circle cx="540" cy="460" r="50" fill="#387763" opacity="0.18"><animate attributeName="r" values="50;58;50" dur="2.2s" repeatCount="indefinite"/></circle>
+        <path d="M515,460 L535,480 L565,440" fill="none" stroke="#387763" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0"><animate attributeName="opacity" values="0;1;1" dur="1s" repeatCount="indefinite" begin="2.5s"/><animate attributeName="stroke-dashoffset" values="60;0;0" dur="1s" repeatCount="indefinite" begin="2.5s"/><animate attributeName="stroke-dasharray" values="0,60;60,0;60,0" dur="1s" repeatCount="indefinite" begin="2.5s"/></path>
+      </g>
+    `
+  };
+  return scenes[key] || '';
+}
+
+// ============================================================
+// OG IMAGE
+// ============================================================
+function createOGImage() {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  ${FILTERS}
+  <rect width="1200" height="630" fill="url(#bgGradDark)"/>
+  
+  <circle cx="200" cy="180" r="280" fill="#387763" opacity="0.07" filter="url(#ggxSpecular)"/>
+  <circle cx="1000" cy="450" r="240" fill="#f59e0b" opacity="0.05" filter="url(#ggxSpecular)"/>
+  
+  <g transform="translate(180, 80)" filter="url(#contactShadow) url(#ggxSpecular)">
+    <rect x="0" y="0" width="360" height="470" rx="36" fill="url(#matteWhiteDark)"/>
+    <rect x="24" y="24" width="312" height="422" rx="22" fill="#387763" opacity="0.04"/>
+    ${['#4a9b7a','#06b6d4','#f59e0b'].map((c,i)=>`<rect x="36" y="${56+i*132}" width="288" height="112" rx="18" fill="${c}" opacity="0.12" stroke="${c}" stroke-width="1.8" stroke-opacity="0.3"/><circle cx="180" cy="${112+i*132}" r="30" fill="${c}" opacity="0.18"/>`).join('')}
+  </g>
+  
+  <circle cx="360" cy="160" r="56" fill="url(#btnGrad)" filter="url(#ggxSpecular)"/>
+  <text x="360" y="176" text-anchor="middle" font-family="system-ui, sans-serif" font-size="64" font-weight="800" fill="white">3·1</text>
+  
+  <text x="500" y="180" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-size="60" font-weight="800" fill="white" letter-spacing="-0.02em">Ein Spender.</text>
+  <text x="500" y="256" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-size="60" font-weight="800" fill="white" letter-spacing="-0.02em">Drei Möglichkeiten.</text>
+  
+  <text x="500" y="335" text-anchor="start" font-family="system-ui, sans-serif" font-size="26" fill="#d6d3d1">Flüssigseife · Rasierschaum · Zahnpasta</text>
+  <text x="500" y="378" text-anchor="start" font-family="system-ui, sans-serif" font-size="26" fill="#d6d3d1">Hygienisch · Platzsparend · Smart</text>
+  
+  <g transform="translate(500, 430)">
+    ${['Seife 300 ml', 'Schaum 300 ml', 'Paste 300 ml', 'Batterie 6+ Monate', 'Wasserfest IPX4', '3M · Schrauben'].map((t,i)=>`<rect x="${(i%3)*240}" y="${Math.floor(i/3)*70}" width="220" height="56" rx="28" fill="${i<3?'#387763':'#1c1917'}" stroke="${i<3?'#4a9b7a':'#3d3834'}" stroke-width="1.8" opacity="${i<3?1:0.85}"/><text x="${(i%3)*240+110}" y="${Math.floor(i/3)*70+38}" text-anchor="middle" font-family="system-ui, sans-serif" font-size="19" font-weight="600" fill="white">${esc(t)}</text>`).join('')}
+  </g>
+  
+  <rect x="500" y="550" width="360" height="72" rx="36" fill="url(#btnGrad)" filter="url(#contactShadow) url(#ggxSpecular)"/>
+  <text x="680" y="594" text-anchor="middle" font-family="system-ui, sans-serif" font-size="28" font-weight="700" fill="white">Jetzt entdecken →</text>
+  
+  <text x="1160" y="610" text-anchor="end" font-family="system-ui, sans-serif" font-size="20" fill="#78716c">seifenspender.example</text>
+</svg>`;
+}
+
+// ============================================================
+// GENERATION
+// ============================================================
+async function generateAll() {
+  console.log('\u{1F3A8} Generating PBR photorealistic images...\n');
+  
+  const views = ['front', 'side', 'open', 'mounted', 'lifestyle'];
+  for (const v of views) {
+    console.log(`  Rendering product-${v}...`);
+    const svg = createProductSVG(`product-${v}`);
+    writeFileSync(join(outDir, `product-${v}.svg`), svg);
+    
+    for (const s of ['', '-light', '-dark']) {
+      const name = `product-${v}${s}`;
+      const webpPath = join(webpDir, `${name}.webp`);
+      const svgStr = createProductSVG(name);
+      await sharp(Buffer.from(svgStr.replace(/&/g, " + 'amp;')))
+        .resize(RENDER.width, RENDER.height, { fit: 'contain', background: { r: 250, g: 250, b: 249, alpha: 1 } })
+        .webp({ quality: 92, effort: 6 })
+        .toFile(webpPath);
+      console.log(`    ✓ ${name}.webp (${RENDER.width}x${RENDER.height})`);
+    }
+  }
+  
+  console.log('\n  Rendering usage steps...');
+  for (let i = 1; i <= 5; i++) {
+    const svg = createUsageSVG(i);
+    writeFileSync(join(outDir, `usage-${i}.svg`), svg);
+    const webpPath = join(webpDir, `usage-${i}.webp`);
+    await sharp(Buffer.from(svg.replace(/&/g, " + 'amp;')))
+      .resize(1000, 750, { fit: 'contain', background: { r: 250, g: 250, b: 249, alpha: 1 } })
+      .webp({ quality: 92, effort: 6 })
+      .toFile(webpPath);
+    console.log(`    ✓ usage-${i}.webp`);
+  }
+  
+  console.log('\n  Rendering OG image...');
+  const ogSvg = createOGImage();
+  writeFileSync(join(outDir, 'og-default.svg'), ogSvg);
+  await sharp(Buffer.from(ogSvg.replace(/&/g, " + 'amp;')))
+    .resize(1200, 630, { fit: 'cover', background: { r: 12, g: 10, b: 9, alpha: 1 } })
+    .webp({ quality: 95, effort: 6 })
+    .toFile(join(webpDir, 'og-default.webp'));
+  console.log('    ✓ og-default.webp');
+  
+  console.log('\n✅ PBR rendering complete!');
+  console.log(`📁 SVGs: ${outDir}/`);
+  console.log(`📁 WebP: ${webpDir}/`);
+}
+
+generateAll().catch(console.error);

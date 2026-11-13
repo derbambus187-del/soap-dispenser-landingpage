@@ -1,0 +1,39 @@
+{
+  "steps": [
+    {
+      "number": 1,
+      "title": "Unbox & Charge",
+      "desc": "Remove the dispenser from packaging. Charge fully before first use (USB-C, approx. 3 hours). LED turns green when fully charged.",
+      "image": "/images/usage-1.svg"
+    },
+    {
+      "number": 2,
+      "title": "Fill Chambers",
+      "desc": "Open the dispenser (twist cap on top). Fill the three chambers with your chosen products: soap, shaving foam, toothpaste. Use the included refill bottles for clean transfer.",
+      "image": "/images/usage-2.svg"
+    },
+    {
+      "number": 3,
+      "title": "Choose Mounting",
+      "desc": "<strong>Option A (Adhesive):</strong> Clean wall surface (tiles, glass, mirror) with alcohol. Remove 3M pad backing and press dispenser firmly for 30 sec.<br><br><strong>Option B (Screws):</strong> Mark drill holes using template. Drill 6 mm holes, insert anchors, screw bracket securely.",
+      "image": "/images/usage-3.svg"
+    },
+    {
+      "number": 4,
+      "title": "Set Dosage",
+      "desc": "Press the mode button on the side to cycle through the three chambers (LED indicates active mode). Hold 3 sec. to change dose level (1–3 blinks = level 1–3).",
+      "image": "/images/usage-4.svg"
+    },
+    {
+      "number": 5,
+      "title": "Ready to Use!",
+      "desc": "Hold your hand, toothbrush, or shaving brush under the desired outlet. Sensor detects proximity and dispenses the set amount. Refill: When LED blinks red, open refill pack and fill chamber."
+    }
+  ],
+  "tips": [
+    { "icon": "lightbulb", "title": "Tip 1", "desc": "For shaving foam: Pump 2–3 times before first use until foam appears." },
+    { "icon": "lightbulb", "title": "Tip 2", "desc": "Choose standard toothpaste consistency (regular tubes work perfectly)." },
+    { "icon": "lightbulb", "title": "Tip 3", "desc": "Clean outlets weekly with warm water to prevent limescale." },
+    { "icon": "lightbulb", "title": "Tip 4", "desc": "For extended non-use: Turn off dispenser (hold mode button 3 sec.)." }
+  ]
+}

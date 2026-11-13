@@ -1,0 +1,65 @@
+{
+  "title": "The Product",
+  "gallery": {
+    "images": [
+      { "src": "/images/product-front.svg", "alt": "3-in-1 Soap Dispenser – Front view" },
+      { "src": "/images/product-side.svg", "alt": "3-in-1 Soap Dispenser – Side view" },
+      { "src": "/images/product-back.svg", "alt": "3-in-1 Soap Dispenser – Rear view with mounting" }
+    ]
+  },
+  "modes": {
+    "soap": {
+      "title": "Soap",
+      "description": "For liquid hand and body soap. The sensor detects your hand and dispenses the perfect amount – no drips, no waste.",
+      "viscosity": "Low to medium",
+      "dose": "0.8 / 1.2 / 1.5 ml",
+      "icon": "droplet"
+    },
+    "foam": {
+      "title": "Shaving Foam",
+      "description": "Specifically developed for shaving foam. The chamber creates the perfect pressure for creamy, stable foam – ideal for wet shaving on face, legs, or body.",
+      "viscosity": "Medium to high",
+      "dose": "1.0 / 1.5 / 2.0 ml",
+      "icon": "cloud"
+    },
+    "paste": {
+      "title": "Toothpaste",
+      "description": "No more squished tubes! The toothpaste chamber doses precisely onto the brush – clean, hygienic, down to the last drop.",
+      "viscosity": "High",
+      "dose": "0.5 / 0.8 / 1.0 ml",
+      "icon": "sparkles"
+    }
+  },
+  "specs": [
+    { "label": "Capacity per chamber", "value": "300 ml" },
+    { "label": "Total capacity", "value": "900 ml" },
+    { "label": "Housing", "value": "Premium ABS, UV-resistant" },
+    { "label": "Pumps", "value": "3 independent diaphragm pumps (food-grade)" },
+    { "label": "Sensor", "value": "Infrared proximity sensor, 5 cm" },
+    { "label": "Dosing accuracy", "value": "± 0.1 ml" },
+    { "label": "Power supply", "value": "Li-Ion battery, 2000 mAh, USB-C" },
+    { "label": "Runtime", "value": "approx. 6 months (at 20 uses/day)" },
+    { "label": "Charge time", "value": "approx. 3 hours" },
+    { "label": "Mounting", "value": "3M adhesive pads (included) or screws" },
+    { "label": "Protection class", "value": "IPX4 (splash-proof)" },
+    { "label": "Operating temp.", "value": "5–40 °C" },
+    { "label": "Colors", "value": "White, Black, Chrome, Matte White" }
+  ],
+  "scope": [
+    "3-in-1 dispenser housing",
+    "3 × refill bottles (empty, 300 ml)",
+    "USB-C charging cable (1 m)",
+    "3M mounting kit (adhesive pads + screws/anchors)",
+    "User manual (DE/EN/FR/ES/IT)",
+    "Warranty card (2 years)"
+  ],
+  "refills": {
+    "title": "Compatible Refill Packs",
+    "items": [
+      { "name": "Liquid Soap Refill", "size": "1 L", "price": "€8.90", "color": "brand" },
+      { "name": "Shaving Foam Refill", "size": "500 ml", "price": "€12.90", "color": "teal" },
+      { "name": "Toothpaste Refill", "size": "300 ml", "price": "€9.90", "color": "amber" },
+      { "name": "Value Pack: All 3 Types", "size": "1 L + 500 ml + 300 ml", "price": "€27.90", "color": "emerald" }
+    ]
+  }
+}

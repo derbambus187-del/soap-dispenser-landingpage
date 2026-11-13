@@ -1,0 +1,21 @@
+---
+import { LOCALES, DEFAULT_LOCALE, getLocale } from '@/i18n/utils';
+
+const currentLocale = getLocale(Astro.url.pathname);
+const redirectPath = `/${currentLocale}`;
+---
+
+<script>
+  // Client-side redirect for immediate navigation
+  window.location.replace(window.location.origin + '/de');
+</script>
+
+<meta http-equiv="refresh" content="0;url=/de" />
+
+<BaseLayout
+  title="3-in-1 Seifenspender"
+  description="Ein Spender. Drei Möglichkeiten. Seife, Rasierschaum & Zahnpasta."
+  locale="de"
+>
+  <p>Weiterleitung zur <a href="/de">deutschen Version</a> oder <a href="/en">English version</a>...</p>
+</BaseLayout>

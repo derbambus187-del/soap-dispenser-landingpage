@@ -1,0 +1,42 @@
+---
+import Layout from '@/components/layout/Layout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+
+const locale = 'en';
+const currentPath = '/en/impressum';
+---
+
+<BaseLayout
+  title="Imprint – 3-in-1 Soap Dispenser"
+  description="Legal information and imprint of the 3-in-1 Soap Dispenser website."
+  locale={locale}
+>
+  <Layout locale={locale} currentPath={currentPath}>
+    <Section padding="xl" class="bg-white dark:bg-slate-950">
+      <div class="container-page max-w-3xl">
+        <h1 class="font-display text-4xl font-bold text-slate-900 dark:text-white mb-8">Imprint</h1>
+        <div class="prose prose-slate dark:prose-invert space-y-6">
+          <p><strong>Information according to § 5 TMG (German Telemedia Act):</strong></p>
+          <p>
+            3-in-1 Soap Dispenser GmbH<br>
+            Musterstraße 123<br>
+            10115 Berlin<br>
+            Germany
+          </p>
+          <p><strong>Represented by:</strong> Max Mustermann, Managing Director</p>
+          <p><strong>Contact:</strong></p>
+          <p>Phone: +49 123 4567890<br>
+          Email: info@seifenspender.example</p>
+          <p><strong>Commercial Register:</strong> Amtsgericht Berlin, HRB 123456</p>
+          <p><strong>VAT ID:</strong> DE123456789</p>
+          <p><strong>Responsible for content according to § 55 Abs. 2 RStV:</strong> Max Mustermann, Musterstraße 123, 10115 Berlin</p>
+          <p><strong>Dispute Resolution:</strong> We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.</p>
+          <p><strong>Liability for Content:</strong> As a service provider, we are responsible for our own content on these pages in accordance with general laws under § 7 Abs.1 TMG. However, under §§ 8 to 10 TMG, we are not obliged to monitor transmitted or stored third-party information.</p>
+          <p><strong>Liability for Links:</strong> Our offer contains links to external third-party websites over whose content we have no influence. Therefore, we cannot assume any liability for such third-party content.</p>
+          <p><strong>Copyright:</strong> The content and works created by the site operators on these pages are subject to German copyright law.</p>
+        </div>
+      </div>
+    </Section>
+  </Layout>
+</BaseLayout>

@@ -1,0 +1,67 @@
+{
+  "workflows": {
+    "hero_front": {
+      "prompt": "Professional product photography of 3-in-1 soap dispenser, front view, 85mm macro lens f/5.6, three visible chambers with liquid soap (pale green), foam (white), toothpaste (white), matte white plastic body, dark matte cap, IR sensor ring chrome, three LED indicators glowing green/cyan/amber, tactile mode button with \"M\", studio lighting: large softbox 45° key, white fill card, subtle rim, white seamless background, soft contact shadow, high key, commercial cosmetics photography, 8k resolution, sharp details, color accurate, sRGB",
+      "resolution": "1024x1280",
+      "aspect": "4:5"
+    },
+    "hero_side": {
+      "prompt": "Professional product photography of 3-in-1 soap dispenser, side profile view, 100mm macro lens f/5.6, shows chamber depth and USB-C port, battery indicator LEDs, mounting bracket silhouette, matte white body, dark cap, studio lighting with edge highlight defining form, white seamless, soft shadow, commercial product photo",
+      "resolution": "1024x1280",
+      "aspect": "4:5"
+    },
+    "hero_angle": {
+      "prompt": "Professional product photography of 3-in-1 soap dispenser, three-quarter view, 85mm f/4.5, shows depth and dimensionality, three chambers visible, IR sensor catchlight, LED glow, mode button highlight, studio lighting: key 45°/45°, fill opposite, rim from behind, clean white background, premium cosmetics advertising",
+      "resolution": "1024x1280",
+      "aspect": "4:5"
+    },
+    "hero_mounted": {
+      "prompt": "3-in-1 soap dispenser mounted on white subway tile bathroom wall, 50mm f/8, shows 3M pads and screw mounting, level installation, three dispensing nozzles visible at bottom, subtle tile texture, natural window light from left, sheer curtain, morning 5500K, mirror reflection showing product, clean modern bathroom",
+      "resolution": "1024x1280",
+      "aspect": "4:5"
+    },
+    "hero_lifestyle": {
+      "prompt": "Modern minimalist bathroom counter, 3-in-1 dispenser on marble vanity, 35mm f/2.8, shallow depth of field, product sharp background soft, toothbrush, razor, towel context, natural window light, warm bounce from beige tiles, cool mirror fill, authentic lifestyle, aspirational but real",
+      "resolution": "1792x1024",
+      "aspect": "16:9"
+    },
+    "hero_open": {
+      "prompt": "3-in-1 soap dispenser cap open, top-down view showing three chamber openings, 100mm macro f/8, focus stacked, pouring liquid soap into first chamber, foam refill into second, toothpaste tube at third, dynamic pouring streams, droplets, realistic physics, studio lighting overhead, white background",
+      "resolution": "1024x1024",
+      "aspect": "1:1"
+    },
+    "closeup_panel": {
+      "prompt": "Extreme closeup of dispenser control panel, 100mm macro f/8, three LED indicators (green/cyan/amber) with soft glow, tactile mode button with \"M\" legend, matte dark surface texture, finger pressing button, subtle indentation, depth of field",
+      "resolution": "1024x1024",
+      "aspect": "1:1"
+    },
+    "closeup_dispensing": {
+      "prompt": "Macro shot of dispensing nozzles in action, 100mm macro f/11, three streams: liquid soap (amber droplet), foam (white puff), paste (white ribbon), high speed capture frozen moment, studio flash, black background, dramatic rim lighting, commercial slo-mo aesthetic",
+      "resolution": "1792x1024",
+      "aspect": "16:9"
+    },
+    "og_social": {
+      "prompt": "3-in-1 soap dispenser hero shot for social media, 1200x630, centered composition with negative space left for text overlay, three chambers clearly visible, \"3·1\" badge prominent, studio lighting, clean white background fading to brand teal gradient, copy space, marketing ready, high contrast",
+      "resolution": "1216x640",
+      "aspect": "1.91:1"
+    }
+  },
+  "common": {
+    "negative": "blurry, out of focus, low resolution, pixelated, noise, grain, watermark, text, logo, branding, labels, stickers, distorted geometry, wrong proportions, extra chambers, missing chambers, wrong colors, oversaturated, undersaturated, color cast, cluttered background, busy environment, messy, dirty, fingers blocking product, cartoon, illustration, 3d render look, artificial, fake, plastic toy look, cheap, low quality, amateur photography, harsh shadows, blown highlights, chromatic aberration, vignetting",
+    "sampler": "dpmpp_2m",
+    "scheduler": "karras",
+    "steps": 30,
+    "cfg": 7.0,
+    "denoise_base": 1.0,
+    "denoise_refiner": 0.3,
+    "refiner_steps": 15
+  },
+  "controlnet": {
+    "canny_strength": 0.8,
+    "depth_strength": 0.6,
+    "canny_start": 0.0,
+    "canny_end": 1.0,
+    "depth_start": 0.0,
+    "depth_end": 0.8
+  }
+}

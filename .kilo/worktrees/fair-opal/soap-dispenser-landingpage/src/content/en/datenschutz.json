@@ -1,0 +1,41 @@
+{
+  "title": "Privacy Policy",
+  "sections": [
+    {
+      "heading": "General",
+      "items": [
+        "Protecting your personal data is of great concern to us. This privacy policy informs you, in accordance with the GDPR, about the processing of personal data on this website."
+      ]
+    },
+    {
+      "heading": "Server Log Files",
+      "items": [
+        "The web server automatically stores access data (IP address, browser type, operating system, access timestamp, requested page). These data are not linkable to other data sources. Storage is for technical reasons for 7 days."
+      ]
+    },
+    {
+      "heading": "Cookies & Tracking",
+      "items": [
+        "This website uses no tracking cookies. For analytics, we use exclusively cookie-free tools such as Plausible or Umami, hosted in the EU. Processing occurs only with your explicit consent (cookie banner)."
+      ]
+    },
+    {
+      "heading": "Contact Form",
+      "items": [
+        "When you send us a message, the data you provide (name, email, message) are stored. The data is used solely to process your request and is not shared with third parties."
+      ]
+    },
+    {
+      "heading": "Your Rights",
+      "items": [
+        "You have the right to access your stored data, to rectify, erase and restrict processing, as well as to data portability. Please contact info@seifenspender.example."
+      ]
+    },
+    {
+      "heading": "Last updated",
+      "items": [
+        "This privacy policy was last updated in November 2026."
+      ]
+    }
+  ]
+}

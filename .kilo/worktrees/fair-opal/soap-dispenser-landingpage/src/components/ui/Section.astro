@@ -1,0 +1,26 @@
+---
+import { cx } from 'class-variance-authority';
+
+interface Props {
+  id?: string;
+  class?: string;
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  narrow?: boolean;
+}
+
+const { id, class: className = '', padding = 'lg', narrow = false } = Astro.props;
+
+const paddings = {
+  none: '',
+  sm: 'py-8',
+  md: 'py-12',
+  lg: 'py-16',
+  xl: 'py-24',
+};
+---
+
+<section id={id} class={cx(paddings[padding], className)}>
+  <div class={cx('container-page', narrow ? 'max-w-4xl' : '')}>
+    <slot />
+  </div>
+</section>

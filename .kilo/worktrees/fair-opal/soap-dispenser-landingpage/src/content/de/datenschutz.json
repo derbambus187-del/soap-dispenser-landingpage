@@ -1,0 +1,41 @@
+{
+  "title": "Datenschutz",
+  "sections": [
+    {
+      "heading": "Allgemeines",
+      "items": [
+        "Der Schutz Ihrer personenbezogenen Daten ist uns ein besonderes Anliegen. Diese Datenschutzerklärung informiert Sie nach den Vorschriften der DSGVO über die Verarbeitung personenbezogener Daten auf dieser Website."
+      ]
+    },
+    {
+      "heading": "Server-Logfiles",
+      "items": [
+        "Der Webserver speichert automatisch Zugriffsdaten (IP-Adresse, Browsertyp, Betriebssystem, Zugriffszeitpunkt, angeforderte Seite). Diese Daten sind nicht mit anderen Datenquellen verknüpfbaren. Die Speicherung erfolgt aus technischen Gründen für 7 Tage."
+      ]
+    },
+    {
+      "heading": "Cookies & Tracking",
+      "items": [
+        "Diese Website verwendet keine Tracking-Cookies. Für Analytics setzen wir ausschließlich cookie-freie Tools wie Plausible oder Umami ein, die EU-gehostet werden. Die Verarbeitung erfolgt nur mit Ihrer ausdrücklichen Einwilligung (Cookie-Banner)."
+      ]
+    },
+    {
+      "heading": "Kontaktformular",
+      "items": [
+        "Wenn Sie uns eine Nachricht senden, werden die von Ihnen angegebenen Daten (Name, E-Mail, Nachricht) gespeichert. Die Daten werden nur für die Bearbeitung Ihrer Anfrage verwendet und nicht an Dritte weitergegeben."
+      ]
+    },
+    {
+      "heading": "Ihre Rechte",
+      "items": [
+        "Sie haben das Recht auf Auskunft über Ihre gespeicherten Daten, auf Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Datenübertragbarkeit. Wenden Sie sich hierzu an info@seifenspender.example."
+      ]
+    },
+    {
+      "heading": "Stand",
+      "items": [
+        "Diese Datenschutzerklärung hat den Stand November 2026."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "title": "Das Produkt",
+  "gallery": {
+    "images": [
+      { "src": "/images/product-front.svg", "alt": "3-in-1 Seifenspender – Frontansicht" },
+      { "src": "/images/product-side.svg", "alt": "3-in-1 Seifenspender – Seitenansicht" },
+      { "src": "/images/product-back.svg", "alt": "3-in-1 Seifenspender – Rückansicht mit Montage" }
+    ]
+  },
+  "modes": {
+    "soap": {
+      "title": "Seife",
+      "description": "Für flüssige Hand- und Körperseife. Der Sensor erkennt Ihre Hand und gibt die perfekte Menge aus – ohne Tropfen, ohne Verschwendung.",
+      "viscosity": "Niedrig bis mittel",
+      "dose": "0,8 / 1,2 / 1,5 ml",
+      "icon": "droplet"
+    },
+    "foam": {
+      "title": "Rasierschaum",
+      "description": "Speziell für Rasierschaum entwickelt. Die Kammer erzeugt den perfekten Druck für cremigen, stabilen Schaum – ideal für Nassrasur an Gesicht, Beinen oder Körper.",
+      "viscosity": "Mittel bis hoch",
+      "dose": "1,0 / 1,5 / 2,0 ml",
+      "icon": "cloud"
+    },
+    "paste": {
+      "title": "Zahnpasta",
+      "description": "Nie wieder verquollene Tuben! Die Zahnpastakammer dosiert präzise auf die Bürste – sauber, hygienisch und bis zum letzten Tropfen.",
+      "viscosity": "Hoch",
+      "dose": "0,5 / 0,8 / 1,0 ml",
+      "icon": "sparkles"
+    }
+  },
+  "specs": [
+    { "label": "Kapazität pro Kammer", "value": "300 ml" },
+    { "label": "Gesamtkapazität", "value": "900 ml" },
+    { "label": "Gehäuse", "value": "Hochwertiges ABS, UV-beständig" },
+    { "label": "Pumpen", "value": "3独立 Membranpumpen (lebensmittelecht)" },
+    { "label": "Sensor", "value": "Infrarot-Näherungssensor, 5 cm" },
+    { "label": "Dosiergenauigkeit", "value": "± 0,1 ml" },
+    { "label": "Stromversorgung", "value": "Li-Ion Akku, 2000 mAh, USB-C" },
+    { "label": "Laufzeit", "value": "ca. 6 Monate (bei 20 Nutzung/Tag)" },
+    { "label": "Ladezeit", "value": "ca. 3 Stunden" },
+    { "label": "Montage", "value": "3M Klebepads (enthalten) oder Schrauben" },
+    { "label": "Schutzart", "value": "IPX4 (spritzwassergeschützt)" },
+    { "label": "Betriebstemperatur", "value": "5–40 °C" },
+    { "label": "Farben", "value": "Weiß, Schwarz, Chrom, Matt-Weiß" }
+  ],
+  "scope": [
+    "3-in-1 Spender-Gehäuse",
+    "3 × Nachfüllflaschen (leer, 300 ml)",
+    "USB-C Ladekabel (1 m)",
+    "3M Montage-Set (Klebepads + Schrauben/Dübel)",
+    "Bedienungsanleitung (DE/EN/FR/ES/IT)",
+    "Garantiekarte (2 Jahre)"
+  ],
+  "refills": {
+    "title": "Passende Nachfüllpacks",
+    "items": [
+      { "name": "Flüssigseife Nachfüllpack", "size": "1 L", "price": "8,90 €", "color": "brand" },
+      { "name": "Rasierschaum Nachfüllpack", "size": "500 ml", "price": "12,90 €", "color": "teal" },
+      { "name": "Zahnpasta Nachfüllpack", "size": "300 ml", "price": "9,90 €", "color": "amber" },
+      { "name": "Sparset: Alle 3 Sorten", "size": "1 L + 500 ml + 300 ml", "price": "27,90 €", "color": "emerald" }
+    ]
+  }
+}

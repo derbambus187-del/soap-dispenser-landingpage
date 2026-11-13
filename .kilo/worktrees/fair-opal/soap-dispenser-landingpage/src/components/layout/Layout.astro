@@ -1,0 +1,19 @@
+---
+import Header from '@/components/layout/Header.astro';
+import Footer from '@/components/layout/Footer.astro';
+
+interface Props {
+  locale: 'de' | 'en';
+  currentPath: string;
+}
+
+const { locale, currentPath } = Astro.props;
+---
+
+<div class="flex flex-col min-h-screen">
+  <Header locale={locale} currentPath={currentPath} />
+  <main id="main" class="flex-grow">
+    <slot />
+  </main>
+  <Footer locale={locale} />
+</div>

@@ -1,0 +1,42 @@
+---
+import Layout from '@/components/layout/Layout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+
+const locale = 'en';
+const currentPath = '/en/datenschutz';
+---
+
+<BaseLayout
+  title="Privacy Policy – 3-in-1 Soap Dispenser"
+  description="Privacy policy of the 3-in-1 Soap Dispenser website according to GDPR."
+  locale={locale}
+>
+  <Layout locale={locale} currentPath={currentPath}>
+    <Section padding="xl" class="bg-white dark:bg-slate-950">
+      <div class="container-page max-w-3xl">
+        <h1 class="font-display text-4xl font-bold text-slate-900 dark:text-white mb-8">Privacy Policy</h1>
+        <div class="prose prose-slate dark:prose-invert space-y-6">
+          <p><strong>1. Data Protection at a Glance</strong></p>
+          <p>Personal data is collected when you visit this website. Personal data is any data with which you can be personally identified.</p>
+          <p><strong>2. Responsible Party</strong></p>
+          <p>3-in-1 Soap Dispenser GmbH<br>
+          Musterstraße 123, 10115 Berlin<br>
+          Email: info@seifenspender.example</p>
+          <p><strong>3. Data Collection on This Website</strong></p>
+          <p><strong>Cookies:</strong> This website uses no tracking cookies. Analytics uses a cookie-free tool (Plausible/Umami) that is only activated with your consent. Technically necessary cookies (e.g., language preference) are set without consent (§ 25 Abs. 2 TTDSG).</p>
+          <p><strong>Server Logfiles:</strong> The provider automatically collects data (browser type, IP address, time, etc.). This serves security and optimization.</p>
+          <p><strong>Contact Form:</strong> Data from the form (name, email, message) is processed only to handle your request (Art. 6 Para. 1 lit. b GDPR).</p>
+          <p><strong>4. Your Rights</strong></p>
+          <p>You have the right to access, rectification, erasure, restriction, objection, and data portability. Complaint to supervisory authority possible.</p>
+          <p><strong>5. Storage Duration</strong></p>
+          <p>Data is deleted once the purpose ceases or you withdraw consent. Legal retention obligations remain unaffected.</p>
+          <p><strong>6. Analytics (Plausible/Umami)</strong></p>
+          <p>This website uses Plausible/Umami – a GDPR-compliant, cookie-free analytics tool. No personal data is stored. IP addresses are hashed. Processing only with your consent (Art. 6 Para. 1 lit. a GDPR).</p>
+          <p><strong>7. External Links</strong></p>
+          <p>This website contains links to external pages (Shop, Social Media). Their operators are responsible for their respective privacy practices.</p>
+        </div>
+      </div>
+    </Section>
+  </Layout>
+</BaseLayout>

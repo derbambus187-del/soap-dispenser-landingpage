@@ -1,0 +1,36 @@
+{
+  "faq": [
+    {
+      "question": "How do I refill the chambers?",
+      "answer": "Open the twist cap on top of the dispenser. Remove the empty refill bottle, fill with your desired product (we recommend our certified refill packs for best fit and dosing accuracy), reinsert the bottle, and close the cap – done."
+    },
+    {
+      "question": "Which brands/products fit in the dispenser?",
+      "answer": "The dispenser works with all common liquid soaps, shaving foams (non-aerosol), and toothpastes in standard tubes. For optimal dosing accuracy and material care, we recommend our certified refill packs. Very thick or grainy products (e.g., scrubs) may clog the pumps."
+    },
+    {
+      "question": "How long does the battery really last?",
+      "answer": "At an average of 20 dispenses per day (approx. 5 people × 4× handwashing), the 2000 mAh battery lasts about 6 months. Actual runtime depends on dose level, product viscosity, and ambient temperature. LED indicates charge: Green >50%, Yellow 20–50%, Red <20%."
+    },
+    {
+      "question": "Can I mount the dispenser without drilling?",
+      "answer": "Yes! Premium 3M adhesive pads are included, holding securely on smooth surfaces (tiles, glass, mirror, painted wood). Rated up to 2 kg – the filled dispenser weighs ~1.2 kg. For rough or uneven walls, we recommend screw mounting (anchors & screws included)."
+    },
+    {
+      "question": "Is there a warranty and how does returns work?",
+      "answer": "We provide a 2-year manufacturer warranty on material and workmanship defects. If defective: Contact us with photo and description – we send free replacement or repair. 30-day money-back guarantee: If not satisfied, return dispenser (original packaging, unused) – we refund the full purchase price."
+    },
+    {
+      "question": "Which countries do you ship to?",
+      "answer": "Currently shipping to Germany, Austria, Switzerland, France, Netherlands, Belgium, Luxembourg, Denmark, Sweden, Norway, Finland, Italy, Spain, Poland, Czech Republic. Free shipping over €50 (DE/AT), otherwise €4.90. Delivery: 1–3 business days (DE), 3–7 business days (EU)."
+    },
+    {
+      "question": "Is the dispenser suitable for shower/bathtub areas?",
+      "answer": "The dispenser is IPX4 certified (splash-proof) and can be mounted in splash zones of sinks and showers. Not suitable for direct water jets (e.g., showerhead) or submersion. For shower areas, we recommend screw mounting for maximum security."
+    },
+    {
+      "question": "Can I set dose amount separately for each chamber?",
+      "answer": "Yes! Each of the three chambers has its own dose level (3 stages). Select mode via button press (LED color: Blue=Soap, Green=Foam, White=Toothpaste), then long-press for level change. Dose e.g. little soap, lots of foam, medium toothpaste – fully customizable."
+    }
+  ]
+}
